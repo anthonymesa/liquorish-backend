@@ -1,0 +1,23 @@
+{
+  "name": "liquorish-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anthonymesa/liquorish-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anthonymesa/liquorish-backend/issues"
+  },
+  "homepage": "https://github.com/anthonymesa/liquorish-backend#readme",
+  "dependencies": {
+    "@hapi/hapi": "^20.2.1",
+    "tedious": "^14.0.0"
+  }
+}
