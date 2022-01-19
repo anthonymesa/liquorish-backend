@@ -57,7 +57,7 @@ function testDatabase() {
 
 const init = async () => {
   const server = new Hapi.Server({ 
-    port: 8080, 
+    port: 80, 
     state: {
       strictHeader: false
     }
