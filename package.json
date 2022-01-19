@@ -18,8 +18,8 @@
   },
   "homepage": "https://github.com/anthonymesa/liquorish-backend#readme",
   "dependencies": {
+    "@hapi/hapi": "^20.2.1",
     "assert": "^2.0.0",
-    "hapi": "^18.1.0",
     "tedious": "^14.0.0"
   }
 }

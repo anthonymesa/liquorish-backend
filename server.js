@@ -1,7 +1,8 @@
 
 let assert = require('assert');
+let db = require('./db.js');
 const { exit } = require("process");
-const Hapi = require("hapi");
+const Hapi = require("@hapi/hapi");
 
 const init = async () => {
   const server = new Hapi.Server({ 
@@ -11,29 +12,13 @@ const init = async () => {
     }
   });
 
-  // await server.register({
-  //   plugin: require('inert')
-  // })
-
   server.route({
     method: 'GET',
     path: '/test',
     handler: function (request, reply) {
-      return "Liquorish works!";
+      return databaseConnected();
     }
   });
-
-  // server.route({
-  //   method: 'GET',
-  //   path: '/{path*}',
-  //   handler: {
-  //   directory: {
-  //         path: './app',
-  //         listing: false,
-  //         index: true
-  //       }
-  //     }     
-  // });
 
   await server.start();
 };
