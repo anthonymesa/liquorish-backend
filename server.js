@@ -57,7 +57,8 @@ function testDatabase() {
 
 const init = async () => {
   const server = new Hapi.Server({ 
-    port: 8080, 
+    host: process.env.HOST || 'localhost',
+    port: process.env.PORT || 8080, 
     state: {
       strictHeader: false
     }
