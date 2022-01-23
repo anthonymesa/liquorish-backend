@@ -70,6 +70,9 @@ async function init_server(db_connection) {
     port: process.env.PORT || 8080,
     state: {
       strictHeader: false
+    },
+    routes: {
+      cors: true
     }
   });
 
