@@ -137,8 +137,7 @@ function set_routes(server, db_connection) {
             });
         }
     });
-}
-
+    
     //  API Function: do nothing
     //    This route catches all paths that are not explicitly given above.
     //    therefore any call to a URL that isn't defined above will get the
@@ -150,9 +149,7 @@ function set_routes(server, db_connection) {
             return "They have curved swords!";
         }
     });
-
-
-    
+}
 
 //=============================================================================
 //  MAIN
