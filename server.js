@@ -117,7 +117,7 @@ function set_routes(server, db_connection) {
     //API Function: tests a simple database function
     server.route({
         method: 'GET',
-        path: '/testTables'
+        path: '/testTables',
         handler: function (request, reply) {
             return new Promise((resolve, reject) => {
                 //  Create dabase request to count from test table (should be 1)
