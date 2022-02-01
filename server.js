@@ -114,18 +114,7 @@ function set_routes(server, db_connection) {
         }
     });
 
-    //  API Function: do nothing
-    //    This route catches all paths that are not explicitly given above.
-    //    therefore any call to a URL that isn't defined above will get the
-    //    'curved swords' message.
-    server.route({
-        method: 'GET',
-        path: '/{path*}',
-        handler: function (request, reply) {
-            return "They have curved swords!";
-        }
-    });
-
+    //API Function: tests a simple database function
     server.route({
         method: 'GET',
         path: '/testTables'
@@ -149,6 +138,21 @@ function set_routes(server, db_connection) {
         }
     });
 }
+
+    //  API Function: do nothing
+    //    This route catches all paths that are not explicitly given above.
+    //    therefore any call to a URL that isn't defined above will get the
+    //    'curved swords' message.
+    server.route({
+        method: 'GET',
+        path: '/{path*}',
+        handler: function (request, reply) {
+            return "They have curved swords!";
+        }
+    });
+
+
+    
 
 //=============================================================================
 //  MAIN
