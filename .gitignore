@@ -5,3 +5,5 @@ config.json
 config.sh
 
 .DS_Store
+
+/**/.vs
