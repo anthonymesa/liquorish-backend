@@ -140,6 +140,12 @@ function set_routes(server, db_connection) {
 
     server.route({
         method: 'GET',
+        
+        //  We can pull variables out of the url provided. in this case, if we called the url
+        //      http://localhost:8080/login/JoJo217/EDDEF9E8E578C2A560C3187C4152C8B6F3F90C1DCF8C88B386AC1A9A96079C2C
+        //  Then username would equate 'JoJo217' and password_hash 'EDDEF9E8E578C2A560C3187C4152C8B6F3F90C1DCF8C88B386AC1A9A96079C2C'
+        //  (the actual password for this dummy account is 'TestPass' which has been run through sha256 encryption via https://passwordsgenerator.net/sha256-hash-generator/
+        //  though we will need to be sha'ing ourselves on the front end).
         path: '/login/{username}/{password_hash}',
 
         //  This fucntion is async so that we can await the database call synchronously
