@@ -166,7 +166,7 @@ function set_routes(server, db_connection) {
             //  data to the connection that requested it.
             return await new Promise((resolve, reject) => {
 
-                //  Get the user ID given the users table given a username,
+                //  Get the user ID from the users table given a username,
                 //  and then get the pass hash from the user_pass table given
                 //  the user id. there should either be 1 row return, or 0.
                 const request = new Request(
