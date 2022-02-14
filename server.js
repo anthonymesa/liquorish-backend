@@ -137,6 +137,77 @@ function set_routes(server, db_connection) {
             });
         }
     });
+
+    server.route({
+        method: 'GET',
+        
+        //  We can pull variables out of the url provided. in this case, if we called the url
+        //      http://liquorish-server.azurewebsites.net/login/JoJo217/EDDEF9E8E578C2A560C3187C4152C8B6F3F90C1DCF8C88B386AC1A9A96079C2C
+        //  Then username would equate 'JoJo217' and password_hash 'EDDEF9E8E578C2A560C3187C4152C8B6F3F90C1DCF8C88B386AC1A9A96079C2C'
+        //  (the actual password for this dummy account is 'TestPass' which has been run through sha256 encryption via https://passwordsgenerator.net/sha256-hash-generator/
+        //  though we will need to be sha'ing ourselves on the front end).
+        path: '/login/{username}/{password_hash}',
+
+        //  This fucntion is async so that we can await the database call synchronously
+        handler: async function (request, reply) {
+
+            //  setting these to values so that they don't go out
+            //  of scope inside the promise (because the request object
+            //  may not be available at the point we are trying to access the 
+            //  values in the promise due to the asynchronous nature of things).
+            const username = request.params.username;
+            const password_hash = request.params.password_hash;
+            
+            //  declare the password hash variable so that it can be filled inside the request.
+            let true_password_hash;
+
+            //  because we have to wait on the response from the databse, we can call await
+            //  to ensure that we synchronously make our databse call before returning the 
+            //  data to the connection that requested it.
+            return await new Promise((resolve, reject) => {
+
+                //  Get the user ID from the users table given a username,
+                //  and then get the pass hash from the user_pass table given
+                //  the user id. there should either be 1 row return, or 0.
+                const request = new Request(
+                    `select password_hash from users_pass where users_id = (
+                        select id from users where username = '${username}'
+                    )`,
+                    (err, rowCount) => {
+                        if (err) {
+                            resolve(false);
+                        } else {
+                            // we dont want to resolve/return here.                    
+                        }
+                    }
+                );
+                
+                //  here we set a callback for the 'row' event which will be called for
+                //  each row returned from the database call made above. an anonymous 
+                //  function is provided as the callback, and the 'columns' variable is provided
+                //  by the row event (the columns contains all of the individual data objects that
+                //  signify each value for each column). Since the SQL above would yield a single row
+                //  consisting of a single element, we want to get the first column in the row and 
+                //  get the value by calling the .value attribute of the object. we can then set the true_password_hash
+                //  that we defined above to that value.
+                request.on('row', columns => {
+                    true_password_hash = columns[0].value;
+                });
+
+                //  The doneProc event will be evaluated when all of the request functionality is complete.
+                //  Given this, this is where we want to be able to evaluate everything we have now and resolve.
+                //  here we are resolving whether the hash that was provided in the url matches the hash that
+                //  was returned from the database call. if they are the same, then return true. on the front end
+                //  if true is recieved, then the user would be logged in. if false is recieved, the user would be
+                //  told something along the lines of 'username or password incorrect'.
+                request.on('doneProc', function (rowCount, more, returnStatus, rows) {
+                    return resolve(true_password_hash == password_hash);
+                });
+
+                db_connection.execSql(request);
+            });
+        }
+    });
     
     //  API Function: do nothing
     //    This route catches all paths that are not explicitly given above.
