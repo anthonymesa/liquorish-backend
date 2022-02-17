@@ -208,6 +208,45 @@ function set_routes(server, db_connection) {
             });
         }
     });
+    //Get drinks from tables
+    server.route({
+        method: 'GET',
+        path: '/drinks',
+
+        //  This fucntion is async so that we can await the database call synchronously
+        handler: async function (request, reply) {
+            //  because we have to wait on the response from the databse, we can call await
+            //  to ensure that we synchronously make our databse call before returning the 
+            //  data to the connection that requested it.
+            return await new Promise((resolve, reject) => {
+                const request = new Request(
+                    `select * from inventory_item`,
+                    (err, rowCount) => {
+                        if (err) {
+                            console.log(rowCount);
+                        } else {
+                            console.log("this worked");
+                        }
+                    }
+                );
+                var arr = new Array();
+                request.on('row', columns => {
+                    var innerArr = new Array();
+                    columns.forEach(element => {
+                        console.log(element.value);
+                        innerArr.push(element.value);
+                    });
+                    arr.push(innerArr);
+                });
+                request.on('doneProc', function (rowCount, more, returnStatus, rows) {
+                    return resolve(arr);
+                });
+
+                db_connection.execSql(request);
+            });
+        }
+    });
+
     
     //  API Function: do nothing
     //    This route catches all paths that are not explicitly given above.
