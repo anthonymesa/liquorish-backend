@@ -247,7 +247,216 @@ function set_routes(server, db_connection) {
         }
     });
 
-    
+    //Get list of bars by user id
+    server.route({
+        method: 'GET',
+        //Takes in user id as a param through path
+        path: '/bars/{user_id}',
+        handler: async function (request, reply) {
+            return await new Promise((resolve, reject) => {
+                const request = new Request(`select * from bars where city = (select city from users where id = '${user_id}')`,
+                    (err, rowCount) => {
+                        if (err) {
+                            return resolve({});
+                        } else {
+                            console.log("this worked");
+                        }
+                    }
+                )
+            });
+            //As above, pushes each line of data to an array, then pushes the array to an outer array
+            //Outer array is returned as an array of arrays
+            var arr = new Array();
+            request.on('row', columns => {
+                var innerArr = new Array();
+                columns.forEach(element => {
+                    console.log(element.value);
+                    innerArr.push(element.value);
+                });
+                arr.push(innerArr);
+            });
+            //Final return of array on completion
+            request.on('doneProc', function (rowCount, more, returnStatus, rows) {
+                return resolve(arr);
+            });
+            db_connection.execSql(request);
+        }
+    });
+
+    //Post request test on test table
+
+    server.route({
+        method: "POST",
+        path: "/user",
+        handler: async (request, resp) => {
+            //user_id, city, state
+            const userId = parseInt(request.form.user_id);
+            const city = request.form.city;
+            const state = request.form.state;
+            const insert = `INSERT INTO test_table (value) VALUES (${userId})`;
+            console.log(insert);
+            return new Promise((resolve, reject) => {
+                //  Create dabase request to count from test table (should be 1)
+                const request = new Request(insert,
+                    (err, rowCount) => {
+                        if (err) {
+                            console.log(err);
+                            resolve(false);
+                        } else {
+                            console.log(rowCount);
+                            resolve(rowCount == 1);
+                        }
+                    }
+                );
+
+                db_connection.execSql(request);
+            });
+        }
+    });
+
+    server.route({
+        method: "GET",
+        path: "/userdob",
+        handler: (req, res) => {
+            let c = "Content-Type': 'text/html'";
+
+            c += '<h3>Update:</h3><form action="updateDOB" method="post">';
+            c += 'Use-ID: <input type="text" name="userId" placeholder="userid"><br/><br/>';
+            c += ' DOB: &nbsp;<input type="text" name="dob" placeholder="dob"><br/>';
+            c += '<p><input type="submit" value="Update Birthdate"></p>';
+            c += '</form>';
+            return c;
+        }
+    });
+
+    server.route({
+        method: "POST",
+        path: "/updateDOB",
+        handler: async (request, resp) => {
+            //user_id, city, state
+            const userId = parseInt(request.payload.userId);
+            const dob = request.payload.dob;
+            // const state = request.form.state;
+            const update = `UPDATE users SET birth_date = '${dob}' WHERE id = ${userId}`;
+            console.log(update);
+            return new Promise((resolve, reject) => {
+                //  Create dabase request to count from test table (should be 1)
+                const request = new Request(update,
+                    (err, rowCount) => {
+                        if (err) {
+                            console.log(err);
+                            resolve(false);
+                        } else {
+                            console.log(rowCount);
+                            resolve(rowCount == 1);
+                        }
+                    }
+                );
+
+                db_connection.execSql(request);
+            });
+
+        }
+        //  This fucntion is async so that we can await the database call synchronously
+
+    });
+
+    server.route({
+        method: "GET",
+        path: "/updateCityState",
+        handler: (req, res) => {
+            let c = "Content-Type': 'text/html'";
+
+            c += '<h3>Update:</h3><form action="updateCityState" method="post">';
+            c += 'User-ID: <input type="text" name="userId" placeholder="User Id"><br/><br/>';
+            c += ' City: &nbsp;<input type="text" name="city" placeholder="City"><br/>';
+            c += ' State: &nbsp;<input type="text" name="state" placeholder="State"><br/>';
+            c += '<p><input type="submit" value="Update User"></p>';
+            c += '</form>';
+            return c;
+        }
+    });
+
+    server.route({
+        method: "POST",
+        path: "/updateCityState",
+        handler: async (request, resp) => {
+            //user_id, city, state
+            const id = parseInt(request.payload.userId);
+            const city = request.payload.city;
+            const state = request.payload.state;
+            // const state = request.form.state;
+            const update = `UPDATE users SET address_city = '${city}', address_state = '${state}' WHERE id = ${id}`;
+            console.log(update);
+            return new Promise((resolve, reject) => {
+                //  Create dabase request to count from test table (should be 1)
+                const request = new Request(update,
+                    (err, rowCount) => {
+                        if (err) {
+                            console.log(err);
+                            resolve(false);
+                        } else {
+                            console.log(rowCount);
+                            resolve(rowCount == 1);
+                        }
+                    }
+                );
+
+                db_connection.execSql(request);
+            });
+
+        }
+        //  This fucntion is async so that we can await the database call synchronously
+
+    });
+
+    server.route({
+        method: "GET",
+        path: "/userpw",
+        handler: (req, res) => {
+            let c = "Content-Type': 'text/html'";
+
+            c += '<h3>Update:</h3><form action="userpw" method="post">';
+            c += 'Username: <input type="text" name="userId" placeholder="userid"><br/><br/>';
+            c += ' Password: &nbsp;<input type="password" name="password" placeholder="password"><br/>';
+            c += '<p><input type="submit" value="Change Password"></p>';
+            c += '</form>';
+            return c;
+        }
+    });
+
+    server.route({
+        method: "POST",
+        path: "/userpw",
+        handler: async (request, resp) => {
+            //user_id, city, state
+            const userId = parseInt(request.payload.userId);
+            const pw = request.payload.password;
+            // const state = request.form.state;
+            const update = `UPDATE users_pass SET password = '${pw}' WHERE users_id = ${userId}`;
+            console.log(update);
+            return new Promise((resolve, reject) => {
+                //  Create dabase request to count from test table (should be 1)
+                const request = new Request(update,
+                    (err, rowCount) => {
+                        if (err) {
+                            console.log(err);
+                            resolve(false);
+                        } else {
+                            console.log(rowCount);
+                            resolve(rowCount == 1);
+                        }
+                    }
+                );
+
+                db_connection.execSql(request);
+            });
+
+        }
+        //  This fucntion is async so that we can await the database call synchronously
+
+    });
+
     //  API Function: do nothing
     //    This route catches all paths that are not explicitly given above.
     //    therefore any call to a URL that isn't defined above will get the
