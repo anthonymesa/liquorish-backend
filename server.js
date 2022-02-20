@@ -170,7 +170,7 @@ function set_routes(server, db_connection) {
                 //  and then get the pass hash from the user_pass table given
                 //  the user id. there should either be 1 row return, or 0.
                 const request = new Request(
-                    `select password_hash from users_pass where users_id = (
+                    `select password from users_pass where users_id = (
                         select id from users where username = '${username}'
                     )`,
                     (err, rowCount) => {
