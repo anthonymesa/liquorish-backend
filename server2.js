@@ -17,18 +17,20 @@ const { exit } = require("process");
  Server=tcp:liquorish-dbs.database.windows.net,1433;Initial Catalog=liquorish-db;
  Persist Security Info=False;User ID=LorisMoris;Password={your_password};
  MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
- 
+ */
+/*
  let DB_SERVER = process.env.DB_SERVER;
 let DB_DATABASE = process.env.DB_DATABASE;
 let DB_USER_NAME = process.env.DB_USER_NAME;
 let DB_PASSWORD = process.env.DB_PASSWORD;
  */
-
-//Get database info from environment variables
 let DB_SERVER = 'liquorish-dbs.database.windows.net';
 let DB_DATABASE = 'liquorish-db';
 let DB_USER_NAME = 'LorisMoris';
 let DB_PASSWORD = 'CanadianSparkle3';
+
+//Get database info from environment variables
+
 
 //console.log("DB_SERVER", DB_SERVER);
 //  Configuration for database connection
@@ -169,7 +171,7 @@ function set_routes(server, db_connection) {
             //  values in the promise due to the asynchronous nature of things).
             const username = request.params.username;
             const password_hash = request.params.password_hash;
-
+            var userId = 0;
             //  declare the password hash variable so that it can be filled inside the request.
             let true_password_hash;
 
@@ -182,7 +184,7 @@ function set_routes(server, db_connection) {
                 //  and then get the pass hash from the user_pass table given
                 //  the user id. there should either be 1 row return, or 0.
                 const request = new Request(
-                    `select password_hash from users_pass where users_id = (
+                    `select password_hash, user_id from users_pass where users_id = (
                         select id from users where username = '${username}'
                     )`,
                     (err, rowCount) => {
@@ -204,6 +206,7 @@ function set_routes(server, db_connection) {
                 //  that we defined above to that value.
                 request.on('row', columns => {
                     true_password_hash = columns[0].value;
+                    userId = columns[1].value;
                 });
 
                 //  The doneProc event will be evaluated when all of the request functionality is complete.
@@ -213,7 +216,7 @@ function set_routes(server, db_connection) {
                 //  if true is recieved, then the user would be logged in. if false is recieved, the user would be
                 //  told something along the lines of 'username or password incorrect'.
                 request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-                    return resolve(true_password_hash == password_hash);
+                    return resolve(true_password_hash == password_hash, user_id=userId);
                 });
 
                 db_connection.execSql(request);
