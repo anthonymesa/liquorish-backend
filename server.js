@@ -146,7 +146,7 @@ function set_routes(server, db_connection) {
         //  Then username would equate 'JoJo217' and password_hash 'EDDEF9E8E578C2A560C3187C4152C8B6F3F90C1DCF8C88B386AC1A9A96079C2C'
         //  (the actual password for this dummy account is 'TestPass' which has been run through sha256 encryption via https://passwordsgenerator.net/sha256-hash-generator/
         //  though we will need to be sha'ing ourselves on the front end).
-        path: '/login/{username}/{password_hash}',
+        path: '/login/{username}/{password}',
 
         //  This fucntion is async so that we can await the database call synchronously
         handler: async function (request, reply) {
@@ -156,10 +156,10 @@ function set_routes(server, db_connection) {
             //  may not be available at the point we are trying to access the 
             //  values in the promise due to the asynchronous nature of things).
             const username = request.params.username;
-            const password_hash = request.params.password_hash;
+            const password = request.params.password;
             
             //  declare the password hash variable so that it can be filled inside the request.
-            let true_password_hash;
+            let true_password;
 
             //  because we have to wait on the response from the databse, we can call await
             //  to ensure that we synchronously make our databse call before returning the 
@@ -191,7 +191,7 @@ function set_routes(server, db_connection) {
                 //  get the value by calling the .value attribute of the object. we can then set the true_password_hash
                 //  that we defined above to that value.
                 request.on('row', columns => {
-                    true_password_hash = columns[0].value;
+                    true_password = columns[0].value;
                 });
 
                 //  The doneProc event will be evaluated when all of the request functionality is complete.
@@ -201,7 +201,7 @@ function set_routes(server, db_connection) {
                 //  if true is recieved, then the user would be logged in. if false is recieved, the user would be
                 //  told something along the lines of 'username or password incorrect'.
                 request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-                    return resolve(true_password_hash == password_hash);
+                    return resolve(true_password == password);
                 });
 
                 db_connection.execSql(request);
