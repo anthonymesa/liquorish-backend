@@ -157,7 +157,7 @@ function set_routes(server, db_connection) {
             //  values in the promise due to the asynchronous nature of things).
             const username = request.params.username;
             const password = request.params.password;
-            let user_id = -1;
+            let user_id = null;
 
             //  because we have to wait on the response from the databse, we can call await
             //  to ensure that we synchronously make our databse call before returning the 
@@ -173,7 +173,10 @@ function set_routes(server, db_connection) {
                     ) and password = '${password}' group by users_id`,
                     (err, rowCount) => {
                         if (err) {
-                            resolve(false);
+                            //  since user_id starts as null, we are still just returning
+                            //  the null'ed user_id here since it hasn't been filled with
+                            //  a value yet.
+                            resolve(`{ status: 0, value: { client_id: '${user_id}' }}`);
                         } else {
                             // we dont want to resolve/return here.                    
                         }
@@ -199,7 +202,7 @@ function set_routes(server, db_connection) {
                 //  if true is recieved, then the user would be logged in. if false is recieved, the user would be
                 //  told something along the lines of 'username or password incorrect'.
                 request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-                    return resolve(`{ client_id: '${user_id}'}`);
+                    return resolve(`{ status: 0, value: { client_id: '${user_id}' }}`);
                 });
 
                 db_connection.execSql(request);
