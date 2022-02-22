@@ -91,52 +91,8 @@ function set_routes(server, db_connection) {
     //    Tests that the database is up and connected by sending
     //    a query to evaluate the length of the test_table, which
     //    should only have a single value in it. 
-    server.route({
-        method: 'GET',
-        path: '/test',
-        handler: function (request, reply) {
-            return new Promise((resolve, reject) => {
-                //  Create dabase request to count from test table (should be 1)
-                const request = new Request(`SELECT count(value) FROM test_table`,
-                    (err, rowCount) => {
-                        if (err) {
-                            console.log(err);
-                            resolve(false);
-                        } else {
-                            console.log(rowCount);
-                            resolve(rowCount == 1);
-                        }
-                    }
-                );
 
-                db_connection.execSql(request);
-            });
-        }
-    });
 
-    //API Function: tests a simple database function
-    server.route({
-        method: 'GET',
-        path: '/testTables',
-        handler: function (request, reply) {
-            return new Promise((resolve, reject) => {
-                //  Create dabase request to count from test table (should be 1)
-                const request = new Request(`SELECT * FROM bar`,
-                    (err, table) => {
-                        if (err) {
-                            console.log(err);
-                            resolve(false);
-                        } else {
-                            console.log(table);
-                            resolve(table);
-                        }
-                    }
-                );
-
-                db_connection.execSql(request);
-            });
-        }
-    });
 
     server.route({
         method: 'GET',
@@ -175,7 +131,7 @@ function set_routes(server, db_connection) {
                     )`,
                     (err, rowCount) => {
                         if (err) {
-                            resolve(false);
+                            resolve({ status: -1, {value: null}});
                         } else {
                             // we dont want to resolve/return here.                    
                         }
@@ -201,7 +157,7 @@ function set_routes(server, db_connection) {
                 //  if true is recieved, then the user would be logged in. if false is recieved, the user would be
                 //  told something along the lines of 'username or password incorrect'.
                 request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-                    return resolve(true_password == password);
+                    return resolve({ status: 1, value: { valid: true } });
                 });
 
                 db_connection.execSql(request);
@@ -291,20 +247,19 @@ function set_routes(server, db_connection) {
         handler: async (request, resp) => {
             //user_id, city, state
             const userId = parseInt(request.form.user_id);
-            const city = request.form.city;
-            const state = request.form.state;
+            const city = request.payload.city;
+            const state = request.payload.state;
             const insert = `INSERT INTO test_table (value) VALUES (${userId})`;
-            console.log(insert);
             return new Promise((resolve, reject) => {
                 //  Create dabase request to count from test table (should be 1)
                 const request = new Request(insert,
                     (err, rowCount) => {
                         if (err) {
                             console.log(err);
-                            resolve(false);
+                            resolve({status: -1});
                         } else {
                             console.log(rowCount);
-                            resolve(rowCount == 1);
+                            resolve({status: 1});
                         }
                     }
                 );
@@ -345,10 +300,10 @@ function set_routes(server, db_connection) {
                     (err, rowCount) => {
                         if (err) {
                             console.log(err);
-                            resolve(false);
+                            resolve({status: -1});
                         } else {
                             console.log(rowCount);
-                            resolve(rowCount == 1);
+                            resolve({status: 1});
                         }
                     }
                 );
@@ -393,11 +348,11 @@ function set_routes(server, db_connection) {
                 const request = new Request(update,
                     (err, rowCount) => {
                         if (err) {
-                            console.log(err);
+                            console.log({status: -1});
                             resolve(false);
                         } else {
                             console.log(rowCount);
-                            resolve(rowCount == 1);
+                            resolve({status: 1});
                         }
                     }
                 );
@@ -440,11 +395,11 @@ function set_routes(server, db_connection) {
                 const request = new Request(update,
                     (err, rowCount) => {
                         if (err) {
-                            console.log(err);
+                            console.log({status: -1});
                             resolve(false);
                         } else {
                             console.log(rowCount);
-                            resolve(rowCount == 1);
+                            resolve({status: -1});
                         }
                     }
                 );
