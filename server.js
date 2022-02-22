@@ -173,10 +173,7 @@ function set_routes(server, db_connection) {
                     ) and password = '${password}' group by users_id`,
                     (err, rowCount) => {
                         if (err) {
-                            //  since user_id starts as null, we are still just returning
-                            //  the null'ed user_id here since it hasn't been filled with
-                            //  a value yet.
-                            resolve(`{ status: 0, value: { client_id: '${user_id}' }}`);
+                            resolve(`{ status: -1, value: null }`);
                         } else {
                             // we dont want to resolve/return here.                    
                         }
@@ -202,7 +199,11 @@ function set_routes(server, db_connection) {
                 //  if true is recieved, then the user would be logged in. if false is recieved, the user would be
                 //  told something along the lines of 'username or password incorrect'.
                 request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-                    return resolve(`{ status: 0, value: { client_id: '${user_id}' }}`);
+                    if(user_id > 0){
+                        return resolve(`{ status: 0, value: { client_id: '${user_id}' }}`);
+                    } else {
+                        return resolve(`{ status: -1, value: null}`);
+                    }
                 });
 
                 db_connection.execSql(request);
