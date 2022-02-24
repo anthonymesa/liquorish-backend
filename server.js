@@ -173,7 +173,7 @@ function set_routes(server, db_connection) {
                     ) and password = '${password}' group by users_id`,
                     (err, rowCount) => {
                         if (err) {
-                            resolve(`{ status: -1, value: null }`);
+                            resolve(`{ "status": -1, "value": null }`);
                         } else {
                             // we dont want to resolve/return here.                    
                         }
@@ -200,9 +200,9 @@ function set_routes(server, db_connection) {
                 //  told something along the lines of 'username or password incorrect'.
                 request.on('doneProc', function (rowCount, more, returnStatus, rows) {
                     if(user_id > 0){
-                        return resolve(`{ status: 0, value: { client_id: '${user_id}' }}`);
+                        return resolve(`{ "status": 0, "value": { "client_id": ${user_id} }}`);
                     } else {
-                        return resolve(`{ status: -1, value: null}`);
+                        return resolve(`{ "status": -1, "value": null}`);
                     }
                 });
 
