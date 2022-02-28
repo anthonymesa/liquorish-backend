@@ -115,30 +115,6 @@ function set_routes(server, db_connection) {
         }
     });
 
-    //API Function: tests a simple database function
-    server.route({
-        method: 'GET',
-        path: '/testTables',
-        handler: function (request, reply) {
-            return new Promise((resolve, reject) => {
-                //  Create dabase request to count from test table (should be 1)
-                const request = new Request(`SELECT * FROM bar`,
-                    (err, table) => {
-                        if (err) {
-                            console.log(err);
-                            resolve(false);
-                        } else {
-                            console.log(table);
-                            resolve(table);
-                        }
-                    }
-                );
-
-                db_connection.execSql(request);
-            });
-        }
-    });
-
     server.route({
         method: 'GET',
         
@@ -212,6 +188,7 @@ function set_routes(server, db_connection) {
             });
         }
     });
+    
     //Get drinks from tables
     server.route({
         method: 'GET',
@@ -224,7 +201,7 @@ function set_routes(server, db_connection) {
             //  data to the connection that requested it.
             return await new Promise((resolve, reject) => {
                 const request = new Request(
-                    `select * from inventory_item`,
+                    `select * from ingredients`,
                     (err, rowCount) => {
                         console.log("drinks done");
                         if (err) {
@@ -251,6 +228,7 @@ function set_routes(server, db_connection) {
             });
         }
     });
+
     server.route({
         method: 'GET',
         path: '/dob/{user_id}',
@@ -288,6 +266,7 @@ function set_routes(server, db_connection) {
             });
         }
     });
+
     //Get list of bars by user id
     server.route({
         method: 'GET',
@@ -328,37 +307,23 @@ function set_routes(server, db_connection) {
         });
         }
     });
-    
-    //Post request test on test table
 
     server.route({
-        method: "POST",
-        path: "/user",
-        handler: async (request, resp) => {
-            //user_id, city, state
-            const userId = parseInt(request.form.user_id);
-            const city = request.form.city;
-            const state = request.form.state;
-            const insert = `INSERT INTO test_table (value) VALUES (${userId})`;
-            console.log(insert);
-            return new Promise((resolve, reject) => {
-                //  Create dabase request to count from test table (should be 1)
-                const request = new Request(insert,
-                    (err, rowCount) => {
-                        if (err) {
-                            console.log(err);
-                            resolve(false);
-                        } else {
-                            console.log(rowCount);
-                            resolve(rowCount == 1);
-                        }
-                    }
-                );
+        method: "GET",
+        path: "/changePass",
+        handler: (req, res) => {
+            let c = "Content-Type': 'text/html'";
 
-                db_connection.execSql(request);
-            });
+            c += '<h3>Update:</h3><form action="updatePassword" method="post">';
+            c += 'Use-ID: <input type="text" name="user_id" placeholder="userid"><br/><br/>';
+            c += ' Current Pass: &nbsp;<input type="text" name="curr_pass_hash" placeholder="curr_pass_hash"><br/>';
+            c += ' New Pass: &nbsp;<input type="text" name="new_pass_hash" placeholder="curr_pass_hash"><br/>';
+            c += '<p><input type="submit" value="Update Password"></p>';
+            c += '</form>';
+            return c;
         }
     });
+
     server.route({
         method: "POST",
         path: "/updatePassword",
@@ -388,24 +353,10 @@ function set_routes(server, db_connection) {
             });
         }
     });
-    server.route({
-        method: "GET",
-        path: "/changePass",
-        handler: (req, res) => {
-            let c = "Content-Type': 'text/html'";
 
-            c += '<h3>Update:</h3><form action="updatePassword" method="post">';
-            c += 'Use-ID: <input type="text" name="user_id" placeholder="userid"><br/><br/>';
-            c += ' Current Pass: &nbsp;<input type="text" name="curr_pass_hash" placeholder="curr_pass_hash"><br/>';
-            c += ' New Pass: &nbsp;<input type="text" name="new_pass_hash" placeholder="curr_pass_hash"><br/>';
-            c += '<p><input type="submit" value="Update Password"></p>';
-            c += '</form>';
-            return c;
-        }
-    });
     server.route({
         method: "GET",
-        path: "/userdob",
+        path: "/updatedob",
         handler: (req, res) => {
             let c = "Content-Type': 'text/html'";
 
