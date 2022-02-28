@@ -7,3 +7,5 @@ config.sh
 .DS_Store
 
 /**/.vs
+
+liquorish-db.sql

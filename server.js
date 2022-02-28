@@ -159,10 +159,8 @@ function set_routes(server, db_connection) {
 
             const username = request.params.username;
             const password = request.params.password;
-            
-            //  declare the password hash variable so that it can be filled inside the request.
-            let true_password;
-            let userId=-1;
+            let user_id = null;
+
             //  because we have to wait on the response from the databse, we can call await
             //  to ensure that we synchronously make our databse call before returning the 
             //  data to the connection that requested it.
@@ -172,12 +170,12 @@ function set_routes(server, db_connection) {
                 //  and then get the pass hash from the user_pass table given
                 //  the user id. there should either be 1 row return, or 0.
                 const request = new Request(
-                    `select password, users_id from users_pass where users_id = (
+                    `select users_id from users_pass where users_id = (
                         select id from users where username = '${username}'
-                    )`,
+                    ) and password = '${password}' group by users_id`,
                     (err, rowCount) => {
                         if (err) {
-                            resolve(false);
+                            resolve(`{ status: -1, value: null }`);
                         } else {
                             // we dont want to resolve/return here.                    
                         }
@@ -193,10 +191,7 @@ function set_routes(server, db_connection) {
                 //  get the value by calling the .value attribute of the object. we can then set the true_password_hash
                 //  that we defined above to that value.
                 request.on('row', columns => {
-                   
-                    true_password = columns[0].value;
-                    console.log('row: ', true_password);
-                    userId = columns[1].value;
+                    user_id = columns[0].value;
                 });
 
                 //  The doneProc event will be evaluated when all of the request functionality is complete.
@@ -206,8 +201,11 @@ function set_routes(server, db_connection) {
                 //  if true is recieved, then the user would be logged in. if false is recieved, the user would be
                 //  told something along the lines of 'username or password incorrect'.
                 request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-                    console.log(true_password, " equals ", password)
-                    return resolve(true_password == password?userId:-1);
+                    if(user_id > 0){
+                        return resolve(`{ status: 0, value: { client_id: '${user_id}' }}`);
+                    } else {
+                        return resolve(`{ status: -1, value: null}`);
+                    }
                 });
 
                 db_connection.execSql(request);
