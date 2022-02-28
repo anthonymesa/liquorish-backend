@@ -92,28 +92,7 @@ function set_routes(server, db_connection) {
     //    Tests that the database is up and connected by sending
     //    a query to evaluate the length of the test_table, which
     //    should only have a single value in it. 
-    server.route({
-        method: 'GET',
-        path: '/test',
-        handler: function (request, reply) {
-            return new Promise((resolve, reject) => {
-                //  Create dabase request to count from test table (should be 1)
-                const request = new Request(`SELECT count(value) FROM test_table`,
-                    (err, rowCount) => {
-                        if (err) {
-                            console.log(err);
-                            resolve(false);
-                        } else {
-                            console.log(rowCount);
-                            resolve(rowCount == 1);
-                        }
-                    }
-                );
 
-                db_connection.execSql(request);
-            });
-        }
-    });
 
     server.route({
         method: 'GET',
@@ -371,7 +350,7 @@ function set_routes(server, db_connection) {
 
     server.route({
         method: "POST",
-        path: "/updateDOB",
+        path: "/updatedob",
         handler: async (request, resp) => {
             //user_id, city, state
             const userId = parseInt(request.payload.userId);
@@ -385,10 +364,17 @@ function set_routes(server, db_connection) {
                     (err, rowCount) => {
                         if (err) {
                             console.log(err);
+<<<<<<< HEAD
                             resolve(false);
                         } else {
                             console.log(rowCount);
                             resolve(rowCount == 1);
+=======
+                            resolve({status: -1});
+                        } else {
+                            console.log(rowCount);
+                            resolve({status: 1});
+>>>>>>> 4a9751952dcb506a411087c5454630fb495148f8
                         }
                     }
                 );
@@ -433,11 +419,19 @@ function set_routes(server, db_connection) {
                 const request = new Request(update,
                     (err, rowCount) => {
                         if (err) {
+<<<<<<< HEAD
                             console.log(err);
                             resolve(false);
                         } else {
                             console.log(rowCount);
                             resolve(rowCount == 1);
+=======
+                            console.log({status: -1});
+                            resolve(false);
+                        } else {
+                            console.log(rowCount);
+                            resolve({status: 1});
+>>>>>>> 4a9751952dcb506a411087c5454630fb495148f8
                         }
                     }
                 );
@@ -480,11 +474,19 @@ function set_routes(server, db_connection) {
                 const request = new Request(update,
                     (err, rowCount) => {
                         if (err) {
+<<<<<<< HEAD
                             console.log(err);
                             resolve(false);
                         } else {
                             console.log(rowCount);
                             resolve(rowCount == 1);
+=======
+                            console.log({status: -1});
+                            resolve(false);
+                        } else {
+                            console.log(rowCount);
+                            resolve({status: -1});
+>>>>>>> 4a9751952dcb506a411087c5454630fb495148f8
                         }
                     }
                 );
