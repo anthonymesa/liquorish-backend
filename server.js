@@ -1,26 +1,23 @@
-//  
-//  Liquorish Server
-//
 
-//=============================================================================
-//  REQUIRE
-//=============================================================================
+/**
+ * Comment goes here
+ */
 
 const Hapi = require("@hapi/hapi");
 const { Connection, Request } = require("tedious");
 const { exit } = require("process");
 
-//=============================================================================
-//  DATABASE
-//=============================================================================
+const { loginUser } = require('./routes/loginUser')
+const { getIngredients } = require('./routes/getIngredients')
+const { getDob } = require('./routes/getDob');
+const { getBarsNearMe } = require("./routes/getBarsNearMe");
 
-//  Get database info from environment variables
-let DB_SERVER = process.env.DB_SERVER;
-let DB_DATABASE = process.env.DB_DATABASE;
-let DB_USER_NAME = process.env.DB_USER_NAME;
-let DB_PASSWORD = process.env.DB_PASSWORD;
+const DB_SERVER = process.env.DB_SERVER;
+const DB_DATABASE = process.env.DB_DATABASE;
+const DB_USER_NAME = process.env.DB_USER_NAME;
+const DB_PASSWORD = process.env.DB_PASSWORD;
+const PORT =  process.env.PORT || 8080;
 
-//  Configuration for database connection
 const db_config = {
     server: DB_SERVER,
     database: DB_DATABASE,
@@ -57,18 +54,14 @@ function init_db() {
     db_connection.connect();
 }
 
-//=============================================================================
-//  SERVER
-//=============================================================================
-const PORT =  process.env.PORT || 8080;
-//  Define asynchronous function to initialize server with its routes defined.
+
 async function init_server(db_connection) {
 
     //  Creates Hapi server object that uses the port given by environment variable.
     //  if the environment variable doesn't exist, then 8080 is default.
-    console.log("starting on port: "+PORT);
+    console.log("starting on port: " + PORT);
     const server = new Hapi.Server({
-        port: process.env.PORT || 8080,
+        port: PORT,
         state: {
             strictHeader: false
         },
@@ -83,207 +76,37 @@ async function init_server(db_connection) {
     await server.start();
 };
 
-//  Set the routes for the server that can be called as API.
 function set_routes(server, db_connection) {
-    //  Defines route callback for GET requests sent to 'http://.../test'.
-    //  Returns a promise to be fulfilled.
-
-    //  API Function: test
-    //    Tests that the database is up and connected by sending
-    //    a query to evaluate the length of the test_table, which
-    //    should only have a single value in it. 
-
 
     server.route({
         method: 'GET',
-        
-        //  We can pull variables out of the url provided. in this case, if we called the url
-        //      http://liquorish-server.azurewebsites.net/login/JoJo217/EDDEF9E8E578C2A560C3187C4152C8B6F3F90C1DCF8C88B386AC1A9A96079C2C
-        //  Then username would equate 'JoJo217' and password_hash 'EDDEF9E8E578C2A560C3187C4152C8B6F3F90C1DCF8C88B386AC1A9A96079C2C'
-        //  (the actual password for this dummy account is 'TestPass' which has been run through sha256 encryption via https://passwordsgenerator.net/sha256-hash-generator/
-        //  though we will need to be sha'ing ourselves on the front end).
         path: '/login/{username}/{password}',
-
-        //  This fucntion is async so that we can await the database call synchronously
-        handler: async function (request, reply) {
-
-            //  setting these to values so that they don't go out
-            //  of scope inside the promise (because the request object
-            //  may not be available at the point we are trying to access the 
-            //  values in the promise due to the asynchronous nature of things).
-
-            const username = request.params.username;
-            const password = request.params.password;
-            let user_id = null;
-
-            //  because we have to wait on the response from the databse, we can call await
-            //  to ensure that we synchronously make our databse call before returning the 
-            //  data to the connection that requested it.
-            return await new Promise((resolve, reject) => {
-
-                //  Get the user ID from the users table given a username,
-                //  and then get the pass hash from the user_pass table given
-                //  the user id. there should either be 1 row return, or 0.
-                const request = new Request(
-                    `select users_id from users_pass where users_id = (
-                        select id from users where username = '${username}'
-                    ) and password = '${password}' group by users_id`,
-                    (err, rowCount) => {
-                        if (err) {
-                            resolve(`{ status: -1, value: null }`);
-                        } else {
-                            // we dont want to resolve/return here.                    
-                        }
-                    }
-                );
-                
-                //  here we set a callback for the 'row' event which will be called for
-                //  each row returned from the database call made above. an anonymous 
-                //  function is provided as the callback, and the 'columns' variable is provided
-                //  by the row event (the columns contains all of the individual data objects that
-                //  signify each value for each column). Since the SQL above would yield a single row
-                //  consisting of a single element, we want to get the first column in the row and 
-                //  get the value by calling the .value attribute of the object. we can then set the true_password_hash
-                //  that we defined above to that value.
-                request.on('row', columns => {
-                    user_id = columns[0].value;
-                });
-
-                //  The doneProc event will be evaluated when all of the request functionality is complete.
-                //  Given this, this is where we want to be able to evaluate everything we have now and resolve.
-                //  here we are resolving whether the hash that was provided in the url matches the hash that
-                //  was returned from the database call. if they are the same, then return true. on the front end
-                //  if true is recieved, then the user would be logged in. if false is recieved, the user would be
-                //  told something along the lines of 'username or password incorrect'.
-                request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-                    if(user_id > 0){
-                        return resolve(`{ status: 0, value: { client_id: '${user_id}' }}`);
-                    } else {
-                        return resolve(`{ status: -1, value: null}`);
-                    }
-                });
-
-                db_connection.execSql(request);
-            });
+        handler: (request, reply) => {
+            return loginUser(request, db_connection)    
         }
     });
     
-    //Get drinks from tables
     server.route({
         method: 'GET',
-        path: '/drinks',
-
-        //  This fucntion is async so that we can await the database call synchronously
-        handler: async function (request, reply) {
-            //  because we have to wait on the response from the databse, we can call await
-            //  to ensure that we synchronously make our databse call before returning the 
-            //  data to the connection that requested it.
-            return await new Promise((resolve, reject) => {
-                const request = new Request(
-                    `select * from ingredients`,
-                    (err, rowCount) => {
-                        console.log("drinks done");
-                        if (err) {
-                            console.log(rowCount);
-                        } else {
-                            console.log("this worked");
-                        }
-                    }
-                );
-                var arr = new Array();
-                request.on('row', columns => {
-                    var innerArr = new Array();
-                    columns.forEach(element => {
-                        console.log(element.value);
-                        innerArr.push(element.value);
-                    });
-                    arr.push(innerArr);
-                });
-                request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-                    return resolve(arr);
-                });
-
-                db_connection.execSql(request);
-            });
+        path: '/ingredients',
+        handler: (request, reply) => {
+            return getIngredients(request, db_connection)
         }
     });
 
     server.route({
         method: 'GET',
         path: '/dob/{user_id}',
-
-        //  This fucntion is async so that we can await the database call synchronously
-        handler: async function (request, reply) {
-            //  because we have to wait on the response from the databse, we can call await
-            //  to ensure that we synchronously make our databse call before returning the 
-            //  data to the connection that requested it.
-            const id =request.params.user_id;
-            return await new Promise((resolve, reject) => {
-                const request = new Request(
-                    `select birth_date from users where id = ${id}`,
-                    (err, rowCount) => {
-                      //  console.log("query done");
-                        if (err) {
-                            console.log(rowCount);
-                        } else {
-                            console.log("this worked");
-                            //resolve();
-                        }
-                    }
-                );
-                var dob;
-                request.on('row', columns => {
-                  //  console.log("on");
-                    dob=columns[0];
-                  //  console.log(dob);
-                });
-                request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-                    return resolve(dob);
-                });
-
-                db_connection.execSql(request);
-            });
+        handler: (request, reply) => {
+            return getDob(request, db_connection)
         }
     });
 
-    //Get list of bars by user id
     server.route({
         method: 'GET',
-        //Takes in user id as a param through path
         path: '/bars/{user_id}',
-        handler: async function (request, reply) {
-            const user_id = request.params.user_id;
-            const query = `select * from bar where address_city = (select address_city from users where id =${user_id})`;
-            console.log(query);
-            return await new Promise((resolve, reject) => {
-                const request = new Request(query,
-                    (err, rowCount) => {
-                        console.log(rowCount);
-                        if (err) {
-                            return resolve({});
-                        } else {
-                            console.log("this worked");
-                        }
-                    }
-                )
-           
-            //As above, pushes each line of data to an array, then pushes the array to an outer array
-            //Outer array is returned as an array of arrays
-            var arr = new Array();
-            request.on('row', columns => {
-                var innerArr = new Array();
-                columns.forEach(element => {
-                    console.log(element.value);
-                    innerArr.push(element.value);
-                });
-                arr.push(innerArr);
-            });
-            //Final return of array on completion
-            request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-                return resolve(arr);
-            });
-            db_connection.execSql(request);
-        });
+        handler: (request, reply) => {
+            return getBarsNearMe(request, db_connection)
         }
     });
 
