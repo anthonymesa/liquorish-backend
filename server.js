@@ -130,7 +130,7 @@ function set_routes(server, db_connection) {
                     ) and password = '${password}' group by users_id`,
                     (err, rowCount) => {
                         if (err) {
-                            resolve(`{ "status": -1, "value": null }`);
+                            resolve(`{ status: -1, value: null }`);
                         } else {
                             // we dont want to resolve/return here.                    
                         }
@@ -157,9 +157,9 @@ function set_routes(server, db_connection) {
                 //  told something along the lines of 'username or password incorrect'.
                 request.on('doneProc', function (rowCount, more, returnStatus, rows) {
                     if(user_id > 0){
-                        return resolve(`{ "status": 0, "value": { "client_id": ${user_id} }}`);
+                        return resolve(`{ status: 0, value: { client_id: '${user_id}' }}`);
                     } else {
-                        return resolve(`{ "status": -1, "value": null}`);
+                        return resolve(`{ status: -1, value: null}`);
                     }
                 });
 
@@ -364,17 +364,10 @@ function set_routes(server, db_connection) {
                     (err, rowCount) => {
                         if (err) {
                             console.log(err);
-<<<<<<< HEAD
                             resolve(false);
                         } else {
                             console.log(rowCount);
                             resolve(rowCount == 1);
-=======
-                            resolve({status: -1});
-                        } else {
-                            console.log(rowCount);
-                            resolve({status: 1});
->>>>>>> 4a9751952dcb506a411087c5454630fb495148f8
                         }
                     }
                 );
@@ -419,19 +412,11 @@ function set_routes(server, db_connection) {
                 const request = new Request(update,
                     (err, rowCount) => {
                         if (err) {
-<<<<<<< HEAD
                             console.log(err);
                             resolve(false);
                         } else {
                             console.log(rowCount);
                             resolve(rowCount == 1);
-=======
-                            console.log({status: -1});
-                            resolve(false);
-                        } else {
-                            console.log(rowCount);
-                            resolve({status: 1});
->>>>>>> 4a9751952dcb506a411087c5454630fb495148f8
                         }
                     }
                 );
@@ -474,19 +459,11 @@ function set_routes(server, db_connection) {
                 const request = new Request(update,
                     (err, rowCount) => {
                         if (err) {
-<<<<<<< HEAD
                             console.log(err);
                             resolve(false);
                         } else {
                             console.log(rowCount);
                             resolve(rowCount == 1);
-=======
-                            console.log({status: -1});
-                            resolve(false);
-                        } else {
-                            console.log(rowCount);
-                            resolve({status: -1});
->>>>>>> 4a9751952dcb506a411087c5454630fb495148f8
                         }
                     }
                 );
