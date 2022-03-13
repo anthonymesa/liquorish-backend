@@ -4,7 +4,7 @@
  */
 
 const { Request } = require("tedious");
-const { createResponse } = require('../response')
+const { createResponse } = require('../../response')
 
 const getIngredients = async (request, db_connection) => {
 
