@@ -1,6 +1,6 @@
 
 /**
- * Comments here
+ * Returns an status and value where the value is an array of bars
  * 
  */
 
@@ -13,7 +13,7 @@ const getBarsNearUser = async (request, db_connection) => {
 
   return await new Promise((resolve, reject) => {
 
-    let bars_data = {}
+    let bars_data = []
 
     const sql_query = `
       select * from bar where bar.address_city = (select address_city from users where users.id = ${id})
@@ -37,12 +37,10 @@ const getBarsNearUser = async (request, db_connection) => {
 
         Object.assign(bar, bar_data)
       });
-      Object.assign(bars_data, bar)
-
+      bars_data.push(bar)
     });
 
     request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-      console.log(JSON.stringify(bars_data))
       return resolve(createResponse(0, bars_data));
     });
 
