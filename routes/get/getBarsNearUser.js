@@ -1,6 +1,6 @@
 
 /**
- * Comments here
+ * Returns an status and value where the value is an array of bars
  * 
  */
 
@@ -13,10 +13,11 @@ const getBarsNearUser = async (request, db_connection) => {
 
   return await new Promise((resolve, reject) => {
 
-    let dob = null;
+    let bars_data = []
+
     const sql_query = `
-            select birth_date from users where id = ${id}
-        `
+      select * from bar where bar.address_city = (select address_city from users where users.id = ${id})
+    `
 
     const request = new Request(sql_query, (err, rowCount) => {
       if (err) {
@@ -25,15 +26,22 @@ const getBarsNearUser = async (request, db_connection) => {
     });
 
     request.on('row', columns => {
-      try {
-        dob = columns[0]
-      } catch {
-        resolve(createResponse(-1, null))
-      }
+
+      let bar = {}
+      columns.forEach(element => {
+
+        let col_name = element.metadata.colName
+        let col_value = element.value
+
+        let bar_data = {[col_name]: col_value}
+
+        Object.assign(bar, bar_data)
+      });
+      bars_data.push(bar)
     });
 
     request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-      return resolve(createResponse(0, { "date": dob.value }));
+      return resolve(createResponse(0, bars_data));
     });
 
     db_connection.execSql(request);

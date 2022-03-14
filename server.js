@@ -20,6 +20,7 @@ const { getBarsNearUser } = require("./routes/get/getBarsNearUser");
 const { updateUserPasswordForm, updateUserPassword } = require("./routes/update/updateUserPassword");
 const { updateUserDobForm, updateUserDob } = require("./routes/update/updateUserDob");
 const { updateUserCityStateForm, updateUserCityState } = require("./routes/update/updateUserCityState");
+const { getUser } = require("./routes/get/getUser");
 
 /**
  * Gets Azure DB credentials
@@ -158,6 +159,14 @@ function set_routes(server, db_connection) {
       return updateUserCityStateForm()
     }
   });
+
+  server.route({
+    method: 'GET',
+    path: '/user/{user_id}',
+    handler: (request, reply) => {
+      return getUser(request, db_connection)
+    }
+  })
 
   /**
    * POST requests
