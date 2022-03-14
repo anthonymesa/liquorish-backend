@@ -12,6 +12,9 @@ const getUser = async (request, db_connection) => {
 
   return await new Promise((resolve, reject) => {
 
+    /**
+     * creates an object that will have its key value pairs appended to it.
+     */
     let user_object = {}
 
     const sql_query = `
