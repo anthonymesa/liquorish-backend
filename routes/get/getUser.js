@@ -30,16 +30,23 @@ const getUser = async (request, db_connection) => {
         let col_name = element.metadata.colName
         let col_value = element.value
 
+        console.log(col_name)
+
+        let json_user_data = {[col_name]: col_value}
+        console.log(JSON.stringify(json_user_data))
+
+        
         /**
          * This is an admittedly odd way to do it, but it is the proper way to
          * append a key-value pair to an already created object.
          */
-        Object.assign({[col_name]: col_value}, user_object)
+        Object.assign(user_object, json_user_data)
       });
     });
 
     request.on('doneProc', (rowCount, more, returnStatus, rows) => {
-      return resolve(createResponse(0, ingredient_table));
+      console.log(JSON.stringify(user_object))
+      return resolve(createResponse(0, user_object));
     });
 
     db_connection.execSql(request);
