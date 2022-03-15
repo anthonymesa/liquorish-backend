@@ -21,6 +21,7 @@ const { updateUserPasswordForm, updateUserPassword } = require("./routes/update/
 const { updateUserDobForm, updateUserDob } = require("./routes/update/updateUserDob");
 const { updateUserCityStateForm, updateUserCityState } = require("./routes/update/updateUserCityState");
 const { getUser } = require("./routes/get/getUser");
+const { getTabDrinks } = require("./routes/get/getTab");
 
 /**
  * Gets Azure DB credentials
@@ -165,6 +166,14 @@ function set_routes(server, db_connection) {
     path: '/user/{user_id}',
     handler: (request, reply) => {
       return getUser(request, db_connection)
+    }
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/tabDrinks/{user_id}/{bar_id}',
+    handler: (request, reply) => {
+      return getTabDrinks(request, db_connection)
     }
   })
 
