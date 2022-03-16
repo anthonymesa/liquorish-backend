@@ -115,7 +115,7 @@ function set_routes(server, db_connection) {
 
   server.route({
     method: 'GET',
-    path: '/ingredients',
+    path: '/ingredients/{drink_id}',
     handler: (request, reply) => {
       return getIngredients(request, db_connection)
     }
