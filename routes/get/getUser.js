@@ -18,8 +18,8 @@ const getUser = async (request, db_connection) => {
     let user_object = {}
 
     const sql_query = `
-             select * from users where users.id = ${id}
-         `
+      select * from users where users.id = ${id}
+    `
 
     const request = new Request(sql_query, (err, rowCount) => {
       if (err) {
