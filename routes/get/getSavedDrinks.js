@@ -46,7 +46,10 @@ const { createResponse } = require('../../response')
 const getSavedDrinks = async (_api_request, _db_conn) => {
 
   /**
-   * PULLING VARIABLES FROM GET URL
+   * PULLING VARIABLES FROM GET URLs
+   * 
+   * The '_api_request' Request object provided by Hapi contains the variables passed
+   * to the API route in the url via its 'params' attribute.
    */
   const user_id = _api_request.params.user_id
 
