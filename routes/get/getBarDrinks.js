@@ -31,6 +31,7 @@ const getBarDrinks = async (request, db_connection) => {
         )
       ) as drink_data
       on bar_drinks.drink_id = drink_data.drink_id
+      where bar_drinks.drink_id = ${bar_id}
     `
 
     /**
