@@ -14,6 +14,7 @@ const { exit } = require("process");
  * API files/functions
  */
 const { loginUser } = require('./routes/loginUser')
+const { loginBar } = require('./routes/loginBar')
 const { getIngredients } = require('./routes/get/getIngredients')
 const { getDob } = require('./routes/get/getDob');
 const { getBarsNearUser } = require("./routes/get/getBarsNearUser");
@@ -114,6 +115,14 @@ function set_routes(server, db_connection) {
       return loginUser(request, db_connection)
     }
   });
+
+    server.route({
+        method: 'GET',
+        path: '/loginBar/{username}/{password}',
+        handler: (request, reply) => {
+            return loginBar(request, db_connection)
+        }
+    });
 
   server.route({
     method: 'GET',

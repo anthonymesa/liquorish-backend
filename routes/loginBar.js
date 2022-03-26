@@ -17,9 +17,9 @@ const loginUser = async (request, db_connection) => {
   return await new Promise((resolve, reject) => {
 
     const sql_query = `
-            select user_id from user_pass where user_id = (
-                select user_id from users where username = '${username}'
-            ) and password = '${password}' group by user_id
+            select bar_id from bar_pass where bar_id = (
+                select bar_id from bar where username = '${username}'
+            ) and password = '${password}' group by bar.bar_id
         `
 
     const request = new Request(sql_query, (err, rowCount) => {
@@ -46,4 +46,4 @@ const loginUser = async (request, db_connection) => {
   });
 }
 
-module.exports = { loginUser }
+module.exports = { loginBar }
