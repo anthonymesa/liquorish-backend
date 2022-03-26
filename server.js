@@ -109,7 +109,7 @@ function set_routes(server, db_connection) {
 
   server.route({
     method: 'GET',
-    path: '/login/{username}/{password}',
+    path: '/loginUser/{username}/{password}',
     handler: (request, reply) => {
       return loginUser(request, db_connection)
     }
