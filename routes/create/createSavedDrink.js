@@ -15,9 +15,8 @@ const createSavedDrink = async (request, db_connection) => {
         const sql_query = `
       insert into saved_drinks(user_id,drink_id) values('${id}','${drink}')
     `;
-        console.log(update);
         return new Promise((resolve, reject) => {
-            const request = new Request(update,
+            const request = new Request(sql_query,
                 (err, rowCount) => {
                     if (err) {
                         console.log(err);
@@ -29,7 +28,7 @@ const createSavedDrink = async (request, db_connection) => {
                 }
             );
 
-            db_connection.execSql(request);
+            db_connection.execSql(sql_query);
         });
     });
 }

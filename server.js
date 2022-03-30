@@ -25,6 +25,7 @@ const { getTabDrinks } = require("./routes/get/getTab");
 const { getSavedDrinks } = require("./routes/get/getSavedDrinks");
 const { getBarDrinks } = require("./routes/get/getBarDrinks");
 const { createSavedDrink } = require("./routes/create/createSavedDrink");
+const { updateReadyStatus } = require("./routes/update/updateReadyStatus");
 
 /**
  * Gets Azure DB credentials
@@ -223,6 +224,14 @@ function set_routes(server, db_connection) {
       return updateUserCityState(request, db_connection)
     }
   });
+
+    server.route({
+        method: "POST",
+        path: "/updateReadyStatus",
+        handler: async (request, resp) => {
+            return updateReadyStatus(request, db_connection)
+        }
+    });
 
     server.route({
         method: "POST",
