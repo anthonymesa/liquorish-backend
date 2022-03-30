@@ -18,8 +18,8 @@ const loginUser = async (request, db_connection) => {
 
     const sql_query = `
             select user_id from user_pass where user_id = (
-                select user_id from users where username = '${username}'
-            ) and password = '${password}' group by user_id
+                select id from users where username = '${username}'
+            ) and password = '${password}' group by id
         `
 
     const request = new Request(sql_query, (err, rowCount) => {
