@@ -1,479 +1,298 @@
-//  
-//  Liquorish Server
-//
 
-//=============================================================================
-//  REQUIRE
-//=============================================================================
+/**
+ * Comment goes here
+ */
 
-const Hapi = require("@hapi/hapi");
-const { Connection, Request } = require("tedious");
-const { exit } = require("process");
-
-//=============================================================================
-//  DATABASE
-//=============================================================================
-
-//  Get database info from environment variables
-let DB_SERVER = process.env.DB_SERVER;
-let DB_DATABASE = process.env.DB_DATABASE;
-let DB_USER_NAME = process.env.DB_USER_NAME;
-let DB_PASSWORD = process.env.DB_PASSWORD;
-
-//  Configuration for database connection
-const db_config = {
-    server: DB_SERVER,
-    database: DB_DATABASE,
-    options: {
-        database: DB_DATABASE
-    },
-    authentication: {
-        type: "default",
-        options: {
-            userName: DB_USER_NAME,
-            password: DB_PASSWORD,
-            port: 1433
-        }
-    }
-};
-
-function init_db() {
-    //  Create new database connection object using configuration
-    db_connection = new Connection(db_config);
-
-    //  Set callback for db_connection's 'connect' event, to be called after 
-    //  trying to connect via .connect().
-    db_connection.on("connect", err => {
-        if (err) {
-            console.error(err);
-            exit(-1);
-        } else {
-            init_server(db_connection);
-            console.log("Database connected...");
-        }
-    });
-
-    //  Try to establish a connection with the database.
-    db_connection.connect();
-}
-
-//=============================================================================
-//  SERVER
-//=============================================================================
-
-//  Define asynchronous function to initialize server with its routes defined.
-async function init_server(db_connection) {
-
-    //  Creates Hapi server object that uses the port given by environment variable.
-    //  if the environment variable doesn't exist, then 8080 is default.
-    const server = new Hapi.Server({
-        port: process.env.PORT || 8080,
-        state: {
-            strictHeader: false
-        },
-        routes: {
-            cors: true
-        }
-    });
-
-    //  Set the url routes that the API will serve.
-    set_routes(server, db_connection);
-
-    await server.start();
-};
-
-//  Set the routes for the server that can be called as API.
-function set_routes(server, db_connection) {
-    //  Defines route callback for GET requests sent to 'http://.../test'.
-    //  Returns a promise to be fulfilled.
-
-    //  API Function: test
-    //    Tests that the database is up and connected by sending
-    //    a query to evaluate the length of the test_table, which
-    //    should only have a single value in it. 
-    server.route({
-        method: 'GET',
-        path: '/test',
-        handler: function (request, reply) {
-            return new Promise((resolve, reject) => {
-                //  Create dabase request to count from test table (should be 1)
-                const request = new Request(`SELECT count(value) FROM test_table`,
-                    (err, rowCount) => {
-                        if (err) {
-                            console.log(err);
-                            resolve(false);
-                        } else {
-                            console.log(rowCount);
-                            resolve(rowCount == 1);
-                        }
+/**
+ * Dependencies for the application
+ */
+ const Hapi = require("@hapi/hapi");
+ const { Connection, Request } = require("tedious");
+ const { exit } = require("process");
+ 
+ /**
+  * API files/functions
+  */
+ const { loginUser } = require('./routes/loginUser')
+ const { getIngredients } = require('./routes/get/getIngredients')
+ const { getDob } = require('./routes/get/getDob');
+ const { getBarsNearUser } = require("./routes/get/getBarsNearUser");
+ const { updateUserPasswordForm, updateUserPassword } = require("./routes/update/updateUserPassword");
+ const { updateUserDobForm, updateUserDob } = require("./routes/update/updateUserDob");
+ const { updateUserCityStateForm, updateUserCityState } = require("./routes/update/updateUserCityState");
+ const { getUser } = require("./routes/get/getUser");
+ const { getTabDrinks } = require("./routes/get/getTab");
+ const { getSavedDrinks } = require("./routes/get/getSavedDrinks");
+ const { getBarDrinks } = require("./routes/get/getBarDrinks");
+ const { addBarForm, addBar } = require("./routes/update/addBar");
+ 
+ /**
+  * Gets Azure DB credentials
+  */
+ const DB_SERVER = process.env.DB_SERVER;
+ const DB_DATABASE = process.env.DB_DATABASE;
+ const DB_USER_NAME = process.env.DB_USER_NAME;
+ const DB_PASSWORD = process.env.DB_PASSWORD;
+ const PORT = process.env.PORT || 8080;
+ 
+ /**
+  * Creates config object to be passed to tedious upon creation of a
+  * new connection
+  */
+ const db_config = {
+   server: DB_SERVER,
+   database: DB_DATABASE,
+   options: {
+     database: DB_DATABASE
+   },
+   authentication: {
+     type: "default",
+     options: {
+       userName: DB_USER_NAME,
+       password: DB_PASSWORD,
+       port: 1433
+     }
+   }
+ };
+ 
+ /**
+  * Initializes the database connection.
+  * 
+  * The connection object is created using the config object above. A callback
+  * is provided to be fired on the .on('connect') connect event of the connection.
+  * After applying the callback, the connection is established using the
+  * connection object.
+  * 
+  */
+ function init_db() {
+   db_connection = new Connection(db_config);
+ 
+   db_connection.on("connect", err => {
+     if (err) {
+       console.error(err);
+       exit(-1);
+     } else {
+       init_server(db_connection);
+       console.log("Database connected...");
+     }
+   });
+ 
+   db_connection.connect();
+ }
+ 
+ 
+ async function init_server(db_connection) {
+ 
+   //  Creates Hapi server object that uses the port given by environment variable.
+   //  if the environment variable doesn't exist, then 8080 is default.
+   console.log("starting on port: " + PORT);
+   const server = new Hapi.Server({
+     port: PORT,
+     state: {
+       strictHeader: false
+     },
+     routes: {
+       cors: true
+     }
+   });
+ 
+   //  Set the url routes that the API will serve.
+   set_routes(server, db_connection);
+ 
+   await server.start();
+ };
+ 
+ function set_routes(server, db_connection) {
+ 
+   /**
+    * GET requests
+    */
+ 
+   server.route({
+     method: 'GET',
+     path: '/loginUser/{username}/{password}',
+     handler: (request, reply) => {
+       return loginUser(request, db_connection)
+     }
+   });
+ 
+   server.route({
+     method: 'GET',
+     path: '/ingredients/{drink_id}',
+     handler: (request, reply) => {
+       return getIngredients(request, db_connection)
+     }
+   });
+ 
+   server.route({
+     method: 'GET',
+     path: '/dob/{user_id}',
+     handler: (request, reply) => {
+       return getDob(request, db_connection)
+     }
+   });
+ 
+   server.route({
+     method: 'GET',
+     path: '/bars/{user_id}',
+     handler: (request, reply) => {
+       return getBarsNearUser(request, db_connection)
+     }
+   });
+ 
+   server.route({
+     method: "GET",
+     path: "/updateUserPasswordForm",
+     handler: (req, res) => {
+       return updateUserPasswordForm()
+     }
+   });
+ 
+   server.route({
+     method: "GET",
+     path: "/updatedob",
+     handler: (req, res) => {
+       return updateUserDobForm()
+     }
+   });
+ 
+   server.route({
+     method: "GET",
+     path: "/updateCityState",
+     handler: (req, res) => {
+       return updateUserCityStateForm()
+     }
+   });
+ 
+   server.route({
+     method: 'GET',
+     path: '/user/{user_id}',
+     handler: (request, reply) => {
+       return getUser(request, db_connection)
+     }
+   })
+ 
+   server.route({
+     method: 'GET',
+     path: '/tabDrinks/{user_id}/{bar_id}',
+     handler: (request, reply) => {
+       return getTabDrinks(request, db_connection)
+     }
+   })
+ 
+   server.route({
+     method: 'GET',
+     path: '/savedDrinks/{user_id}',
+     handler: (request, reply) => {
+       return getSavedDrinks(request, db_connection)
+     }
+   })
+ 
+   server.route({
+     method: 'GET',
+     path: '/barDrinks/{bar_id}',
+     handler: (request, reply) => {
+       return getBarDrinks(request, db_connection)
+     }
+   })
+ 
+   /**
+    * POST requests
+    */
+ 
+   server.route({
+     method: "POST",
+     path: "/updateUserPassword",
+     handler: async (request, resp) => {
+       return updateUserPassword(request, db_connection)
+     }
+   });
+ 
+   server.route({
+     method: "POST",
+     path: "/updatedob",
+     handler: async (request, resp) => {
+       return updateUserDob(request, db_connection)
+     }
+   });
+ 
+   server.route({
+     method: "POST",
+     path: "/updateCityState",
+     handler: async (request, resp) => {
+       return updateUserCityState(request, db_connection)
+     }
+   });
+   
+  server.route({
+    method: 'GET',
+    path: '/test',
+    handler: function (request, reply) {
+        return new Promise((resolve, reject) => {
+            //  Create dabase request to count from test table (should be 1)
+            const request = new Request(`SELECT count(value) FROM test_table`,
+                (err, rowCount) => {
+                    if (err) {
+                        console.log(err);
+                        resolve(false);
+                    } else {
+                        console.log(rowCount);
+                        resolve(rowCount == 1);
                     }
-                );
+                }
+            );
 
-                db_connection.execSql(request);
-            });
-        }
-    });
-
-    //API Function: tests a simple database function
-    server.route({
-        method: 'GET',
-        path: '/testTables',
-        handler: function (request, reply) {
-            return new Promise((resolve, reject) => {
-                //  Create dabase request to count from test table (should be 1)
-                const request = new Request(`SELECT * FROM bar`,
-                    (err, table) => {
-                        if (err) {
-                            console.log(err);
-                            resolve(false);
-                        } else {
-                            console.log(table);
-                            resolve(table);
-                        }
-                    }
-                );
-
-                db_connection.execSql(request);
-            });
-        }
-    });
-
-    server.route({
-        method: 'GET',
-        
-        //  We can pull variables out of the url provided. in this case, if we called the url
-        //      http://liquorish-server.azurewebsites.net/login/JoJo217/EDDEF9E8E578C2A560C3187C4152C8B6F3F90C1DCF8C88B386AC1A9A96079C2C
-        //  Then username would equate 'JoJo217' and password_hash 'EDDEF9E8E578C2A560C3187C4152C8B6F3F90C1DCF8C88B386AC1A9A96079C2C'
-        //  (the actual password for this dummy account is 'TestPass' which has been run through sha256 encryption via https://passwordsgenerator.net/sha256-hash-generator/
-        //  though we will need to be sha'ing ourselves on the front end).
-        path: '/login/{username}/{password}',
-
-        //  This fucntion is async so that we can await the database call synchronously
-        handler: async function (request, reply) {
-
-            //  setting these to values so that they don't go out
-            //  of scope inside the promise (because the request object
-            //  may not be available at the point we are trying to access the 
-            //  values in the promise due to the asynchronous nature of things).
-            const username = request.params.username;
-            const password = request.params.password;
-            
-            //  declare the password hash variable so that it can be filled inside the request.
-            let true_password;
-
-            //  because we have to wait on the response from the databse, we can call await
-            //  to ensure that we synchronously make our databse call before returning the 
-            //  data to the connection that requested it.
-            return await new Promise((resolve, reject) => {
-
-                //  Get the user ID from the users table given a username,
-                //  and then get the pass hash from the user_pass table given
-                //  the user id. there should either be 1 row return, or 0.
-                const request = new Request(
-                    `select password from users_pass where users_id = (
-                        select id from users where username = '${username}'
-                    )`,
-                    (err, rowCount) => {
-                        if (err) {
-                            resolve(false);
-                        } else {
-                            // we dont want to resolve/return here.                    
-                        }
-                    }
-                );
-                
-                //  here we set a callback for the 'row' event which will be called for
-                //  each row returned from the database call made above. an anonymous 
-                //  function is provided as the callback, and the 'columns' variable is provided
-                //  by the row event (the columns contains all of the individual data objects that
-                //  signify each value for each column). Since the SQL above would yield a single row
-                //  consisting of a single element, we want to get the first column in the row and 
-                //  get the value by calling the .value attribute of the object. we can then set the true_password_hash
-                //  that we defined above to that value.
-                request.on('row', columns => {
-                    true_password = columns[0].value;
-                });
-
-                //  The doneProc event will be evaluated when all of the request functionality is complete.
-                //  Given this, this is where we want to be able to evaluate everything we have now and resolve.
-                //  here we are resolving whether the hash that was provided in the url matches the hash that
-                //  was returned from the database call. if they are the same, then return true. on the front end
-                //  if true is recieved, then the user would be logged in. if false is recieved, the user would be
-                //  told something along the lines of 'username or password incorrect'.
-                request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-                    return resolve(true_password == password);
-                });
-
-                db_connection.execSql(request);
-            });
-        }
-    });
-    //Get drinks from tables
-    server.route({
-        method: 'GET',
-        path: '/drinks',
-
-        //  This fucntion is async so that we can await the database call synchronously
-        handler: async function (request, reply) {
-            //  because we have to wait on the response from the databse, we can call await
-            //  to ensure that we synchronously make our databse call before returning the 
-            //  data to the connection that requested it.
-            return await new Promise((resolve, reject) => {
-                const request = new Request(
-                    `select * from inventory_item`,
-                    (err, rowCount) => {
-                        if (err) {
-                            console.log(rowCount);
-                        } else {
-                            console.log("this worked");
-                        }
-                    }
-                );
-                var arr = new Array();
-                request.on('row', columns => {
-                    var innerArr = new Array();
-                    columns.forEach(element => {
-                        console.log(element.value);
-                        innerArr.push(element.value);
-                    });
-                    arr.push(innerArr);
-                });
-                request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-                    return resolve(arr);
-                });
-
-                db_connection.execSql(request);
-            });
-        }
-    });
-
-    //Get list of bars by user id
-    server.route({
-        method: 'GET',
-        //Takes in user id as a param through path
-        path: '/bars/{user_id}',
-        handler: async function (request, reply) {
-            return await new Promise((resolve, reject) => {
-                const request = new Request(`select * from bars where city = (select city from users where id = '${user_id}')`,
-                    (err, rowCount) => {
-                        if (err) {
-                            return resolve({});
-                        } else {
-                            console.log("this worked");
-                        }
-                    }
-                )
-            });
-            //As above, pushes each line of data to an array, then pushes the array to an outer array
-            //Outer array is returned as an array of arrays
-            var arr = new Array();
-            request.on('row', columns => {
-                var innerArr = new Array();
-                columns.forEach(element => {
-                    console.log(element.value);
-                    innerArr.push(element.value);
-                });
-                arr.push(innerArr);
-            });
-            //Final return of array on completion
-            request.on('doneProc', function (rowCount, more, returnStatus, rows) {
-                return resolve(arr);
-            });
             db_connection.execSql(request);
-        }
-    });
+        });
+    }
+});
+server.route({
+    method: "POST",
+    path: "/addBar",
+    handler: async (request, resp) => {
+      return addBar(request, db_connection)
+    }
+  });
+  server.route({
+    method: "POST",
+    path: "/addOwner",
+    handler: async (request, resp) => {
+      return addOwner(request, db_connection)
+    }
+  });
+  server.route({
+    method: "POST",
+    path: "/addPassToBar",
+    handler: async (request, resp) => {
+      return addPassToBar(request, db_connection)
+    }
+  });
 
-    //Post request test on test table
+  // addPassToBar
+  server.route({
+    method: "POST",
+    path: "/addBarToOwner",
+    handler: async (request, resp) => {
+      return addBarToOwner(request, db_connection)
+    }
+  });
+//API Function: tests a simple database function
 
-    server.route({
-        method: "POST",
-        path: "/user",
-        handler: async (request, resp) => {
-            //user_id, city, state
-            const userId = parseInt(request.form.user_id);
-            const city = request.form.city;
-            const state = request.form.state;
-            const insert = `INSERT INTO test_table (value) VALUES (${userId})`;
-            console.log(insert);
-            return new Promise((resolve, reject) => {
-                //  Create dabase request to count from test table (should be 1)
-                const request = new Request(insert,
-                    (err, rowCount) => {
-                        if (err) {
-                            console.log(err);
-                            resolve(false);
-                        } else {
-                            console.log(rowCount);
-                            resolve(rowCount == 1);
-                        }
-                    }
-                );
-
-                db_connection.execSql(request);
-            });
-        }
-    });
-
-    server.route({
-        method: "GET",
-        path: "/userdob",
-        handler: (req, res) => {
-            let c = "Content-Type': 'text/html'";
-
-            c += '<h3>Update:</h3><form action="updateDOB" method="post">';
-            c += 'Use-ID: <input type="text" name="userId" placeholder="userid"><br/><br/>';
-            c += ' DOB: &nbsp;<input type="text" name="dob" placeholder="dob"><br/>';
-            c += '<p><input type="submit" value="Update Birthdate"></p>';
-            c += '</form>';
-            return c;
-        }
-    });
-
-    server.route({
-        method: "POST",
-        path: "/updateDOB",
-        handler: async (request, resp) => {
-            //user_id, city, state
-            const userId = parseInt(request.payload.userId);
-            const dob = request.payload.dob;
-            // const state = request.form.state;
-            const update = `UPDATE users SET birth_date = '${dob}' WHERE id = ${userId}`;
-            console.log(update);
-            return new Promise((resolve, reject) => {
-                //  Create dabase request to count from test table (should be 1)
-                const request = new Request(update,
-                    (err, rowCount) => {
-                        if (err) {
-                            console.log(err);
-                            resolve(false);
-                        } else {
-                            console.log(rowCount);
-                            resolve(rowCount == 1);
-                        }
-                    }
-                );
-
-                db_connection.execSql(request);
-            });
-
-        }
-        //  This fucntion is async so that we can await the database call synchronously
-
-    });
-
-    server.route({
-        method: "GET",
-        path: "/updateCityState",
-        handler: (req, res) => {
-            let c = "Content-Type': 'text/html'";
-
-            c += '<h3>Update:</h3><form action="updateCityState" method="post">';
-            c += 'User-ID: <input type="text" name="userId" placeholder="User Id"><br/><br/>';
-            c += ' City: &nbsp;<input type="text" name="city" placeholder="City"><br/>';
-            c += ' State: &nbsp;<input type="text" name="state" placeholder="State"><br/>';
-            c += '<p><input type="submit" value="Update User"></p>';
-            c += '</form>';
-            return c;
-        }
-    });
-
-    server.route({
-        method: "POST",
-        path: "/updateCityState",
-        handler: async (request, resp) => {
-            //user_id, city, state
-            const id = parseInt(request.payload.userId);
-            const city = request.payload.city;
-            const state = request.payload.state;
-            // const state = request.form.state;
-            const update = `UPDATE users SET address_city = '${city}', address_state = '${state}' WHERE id = ${id}`;
-            console.log(update);
-            return new Promise((resolve, reject) => {
-                //  Create dabase request to count from test table (should be 1)
-                const request = new Request(update,
-                    (err, rowCount) => {
-                        if (err) {
-                            console.log(err);
-                            resolve(false);
-                        } else {
-                            console.log(rowCount);
-                            resolve(rowCount == 1);
-                        }
-                    }
-                );
-
-                db_connection.execSql(request);
-            });
-
-        }
-        //  This fucntion is async so that we can await the database call synchronously
-
-    });
-
-    server.route({
-        method: "GET",
-        path: "/userpw",
-        handler: (req, res) => {
-            let c = "Content-Type': 'text/html'";
-
-            c += '<h3>Update:</h3><form action="userpw" method="post">';
-            c += 'Username: <input type="text" name="userId" placeholder="userid"><br/><br/>';
-            c += ' Password: &nbsp;<input type="password" name="password" placeholder="password"><br/>';
-            c += '<p><input type="submit" value="Change Password"></p>';
-            c += '</form>';
-            return c;
-        }
-    });
-
-    server.route({
-        method: "POST",
-        path: "/userpw",
-        handler: async (request, resp) => {
-            //user_id, city, state
-            const userId = parseInt(request.payload.userId);
-            const pw = request.payload.password;
-            // const state = request.form.state;
-            const update = `UPDATE users_pass SET password = '${pw}' WHERE users_id = ${userId}`;
-            console.log(update);
-            return new Promise((resolve, reject) => {
-                //  Create dabase request to count from test table (should be 1)
-                const request = new Request(update,
-                    (err, rowCount) => {
-                        if (err) {
-                            console.log(err);
-                            resolve(false);
-                        } else {
-                            console.log(rowCount);
-                            resolve(rowCount == 1);
-                        }
-                    }
-                );
-
-                db_connection.execSql(request);
-            });
-
-        }
-        //  This fucntion is async so that we can await the database call synchronously
-
-    });
-
-    //  API Function: do nothing
-    //    This route catches all paths that are not explicitly given above.
-    //    therefore any call to a URL that isn't defined above will get the
-    //    'curved swords' message.
-    server.route({
-        method: 'GET',
-        path: '/{path*}',
-        handler: function (request, reply) {
-            return "They have curved swords!";
-        }
-    });
-}
-
-//=============================================================================
-//  MAIN
-//=============================================================================
-
-//  Running init_db will initialize the database and if it succeeds, it will
-//  initialize the server. If it doesn't succed, node will exit.
-init_db();
+   /**
+    * This rout catches all routes that have not been appended above.
+    */
+   server.route({
+     method: 'GET',
+     path: '/{path*}',
+     handler: function (request, reply) {
+       return "They have curved swords!";
+     }
+   });
+ }
+ 
+  
+ /**
+  * Running inid_db will initialize the database and if it succeeds, it will
+  * initialize the API server. If it doesn't succeed, NodeJs will exit.
+  */
+ init_db();
