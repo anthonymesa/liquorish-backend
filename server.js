@@ -27,6 +27,7 @@ const { getSavedDrinks } = require("./routes/get/getSavedDrinks");
 const { getBarDrinks } = require("./routes/get/getBarDrinks");
 const { createSavedDrink } = require("./routes/create/createSavedDrink");
 const { updateReadyStatus } = require("./routes/update/updateReadyStatus");
+const { deleteSavedDrink } = require("./routes/delete/deleteSavedDrink");
 
 /**
  * Gets Azure DB credentials
@@ -247,6 +248,14 @@ function set_routes(server, db_connection) {
         path: "/createSavedDrink",
         handler: async (request, resp) => {
             return createSavedDrink(request, db_connection)
+        }
+    });
+
+    server.route({
+        method: "POST",
+        path: "/deleteSavedDrink",
+        handler: async (request, resp) => {
+            return deleteSavedDrink(request, db_connection)
         }
     });
 
