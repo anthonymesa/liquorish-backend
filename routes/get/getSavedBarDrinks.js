@@ -16,7 +16,23 @@ const getSavedBarDrinks = async (request, db_connection) => {
     return new Promise((resolve, reject) => {
 
         const sql_query = `
-            select * from bar_drinks where bar_id = ${bar_id} and drink_id in (select drink_id from saved_drinks where saved_drinks.user_id = ${user_id})
+        select 
+            saved_bar_drinks.bar_drink_id,
+            saved_bar_drinks.drink_id,
+            drink.drink_name,
+            drink.description,
+            saved_bar_drinks.price
+        from ( 
+            select * 
+            from bar_drinks 
+            where bar_id = ${bar_id} 
+            and drink_id in (
+                select drink_id 
+                from saved_drinks 
+                where saved_drinks.user_id = ${user_id}
+            ) 
+        ) as saved_bar_drinks inner join drink 
+        on saved_bar_drinks.drink_id = drink.drink_id
         `
 
         /**
