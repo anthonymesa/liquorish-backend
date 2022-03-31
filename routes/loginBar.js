@@ -8,18 +8,23 @@
 const { Request } = require("tedious");
 const { createResponse } = require('../response')
 
-const loginUser = async (request, db_connection) => {
+const loginBar = async (request, db_connection) => {
 
   const username = request.params.username;
   const password = request.params.password;
-  let user_id = null;
+  let bar_id = null;
 
   return await new Promise((resolve, reject) => {
 
     const sql_query = `
-            select user_id from user_pass where user_id = (
-                select id from users where username = '${username}'
-            ) and password = '${password}' group by id
+    select bar_id 
+        from bar_pass 
+        where bar_id = (
+            select id 
+            from bar 
+            where username = '${username}'
+            ) and 
+            password = '${password}'
         `
 
     const request = new Request(sql_query, (err, rowCount) => {
@@ -29,13 +34,13 @@ const loginUser = async (request, db_connection) => {
     });
 
     request.on('row', columns => {
-      user_id = columns[0].value;
+        bar_id = columns[0].value;
     });
 
     request.on('doneProc', (rowCount, more, returnStatus, rows) => {
-      if (user_id > 0) {
+      if (bar_id > 0) {
         return resolve(createResponse(0, {
-          "client id": user_id
+            "client id": bar_id
         }));
       } else {
         return resolve(createResponse(-1, null));
@@ -46,4 +51,4 @@ const loginUser = async (request, db_connection) => {
   });
 }
 
-module.exports = { loginUser }
+module.exports = { loginBar }
