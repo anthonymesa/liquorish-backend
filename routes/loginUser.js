@@ -17,9 +17,9 @@ const loginUser = async (request, db_connection) => {
   return await new Promise((resolve, reject) => {
 
     const sql_query = `
-            select user_id from user_pass where user_id = (
+            select users_id from users_pass where users_id = (
                 select id from users where username = '${username}'
-            ) and password = '${password}' group by id
+            ) and password = '${password}'
         `
 
     const request = new Request(sql_query, (err, rowCount) => {
