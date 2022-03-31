@@ -244,7 +244,7 @@ function set_routes(server, db_connection) {
 
     server.route({
         method: "POST",
-        path: "/createSavedDrink/",
+        path: "/createSavedDrink",
         handler: async (request, resp) => {
             return createSavedDrink(request, db_connection)
         }

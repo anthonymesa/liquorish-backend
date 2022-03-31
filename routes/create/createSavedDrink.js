@@ -13,7 +13,7 @@ const createSavedDrink = async (request, db_connection) => {
     return await new Promise((resolve, reject) => {
 
         const sql_query = `
-      insert into saved_drinks(user_id,drink_id) values('${id}','${drink}')
+      insert into saved_drinks(user_id,drink_id) values( ${id}, ${drink} )
     `;
         return new Promise((resolve, reject) => {
             const request = new Request(sql_query,
