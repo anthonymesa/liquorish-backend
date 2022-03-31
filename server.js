@@ -28,6 +28,7 @@ const { getBarDrinks } = require("./routes/get/getBarDrinks");
 const { createSavedDrink } = require("./routes/create/createSavedDrink");
 const { updateReadyStatus } = require("./routes/update/updateReadyStatus");
 const { deleteSavedDrink } = require("./routes/delete/deleteSavedDrink");
+const { getSavedBarDrinks } = require("./routes/get/getSavedBarDrinks");
 
 /**
  * Gets Azure DB credentials
@@ -207,6 +208,14 @@ function set_routes(server, db_connection) {
     }
   })
 
+  server.route({
+    method: 'GET',
+    path: '/savedBarList/{bar_id}/{user_id}',
+    handler: (request, reply) => {
+      return getSavedBarDrinks(request, db_connection)
+    }
+  })
+
   /**
    * POST requests
    */
@@ -258,7 +267,6 @@ function set_routes(server, db_connection) {
             return deleteSavedDrink(request, db_connection)
         }
     });
-
 
   /**
    * This rout catches all routes that have not been appended above.
