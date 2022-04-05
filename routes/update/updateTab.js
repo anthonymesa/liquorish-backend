@@ -32,4 +32,4 @@
      });
  }
  
- module.exports = { updateReadyStatus: updateTab }
+ module.exports = { updateTab: updateTab }
