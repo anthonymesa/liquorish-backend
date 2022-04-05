@@ -35,6 +35,7 @@ const { createSavedDrink } = require("./routes/create/createSavedDrink");
 const { updateReadyStatus } = require("./routes/update/updateReadyStatus");
 const { deleteSavedDrink } = require("./routes/delete/deleteSavedDrink");
 const { getSavedBarDrinks } = require("./routes/get/getSavedBarDrinks");
+const { updateTab } = require("./routes/update/updateTab");
 
 /**
  * Gets Azure DB credentials
@@ -310,16 +311,24 @@ function set_routes(server, db_connection) {
         }
     });
 
-    /**
-     * This rout catches all routes that have not been appended above.
-     */
     server.route({
-        method: 'GET',
-        path: '/{path*}',
-        handler: function (request, reply) {
-            return "They have curved swords!";
+        method: "POST",
+        path: "/updateTab/{tab_id}/{bar_drink_id}",
+        handler: async (request, resp) => {
+            return updateTab(request, db_connection)
         }
     });
+
+  /**
+   * This rout catches all routes that have not been appended above.
+   */
+  server.route({
+    method: 'GET',
+    path: '/{path*}',
+    handler: function (request, reply) {
+      return "They have curved swords!";
+    }
+  });
 }
 
 /**
