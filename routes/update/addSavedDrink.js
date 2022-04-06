@@ -2,16 +2,18 @@
 const { Request } = require("tedious");
 const { createResponse } = require('../../response')
 
-const deleteSavedDrink = async (request, db_connection) => {
+const addSavedDrink = async (request, db_connection) => {
 
-    const id = parseInt(request.params.user_id);
-    const drink = parseInt(request.params.drink_id);
-    
+    // const user_id = parseInt(request.payload.user_id);
+    // const drink_id = parseInt(request.payload.drink_id);
+    const user_id = parseInt(request.params.user_id);
+    const drink_id = parseInt(request.params.drink_id);
+
     return await new Promise((resolve, reject) => {
 
         const sql_query = `
-            delete from saved_drinks where user_id = ${id} and drink_id = ${drink}
-        `;
+            insert into saved_drinks values (${user_id}, ${drink_id})
+        `
 
         const request = new Request(sql_query,
             (err, rowCount) => {
@@ -30,4 +32,4 @@ const deleteSavedDrink = async (request, db_connection) => {
 }
 
 
-module.exports = { deleteSavedDrink }
+module.exports = { addSavedDrink: addSavedDrink }

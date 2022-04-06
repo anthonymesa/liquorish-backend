@@ -19,8 +19,7 @@
         * 
      from 
         saved_drinks 
-    where user_id = ${user_id} and drink_id = ${drink_id}
-     where tabs.user_id = 2 and bar_drinks.bar_id = 2
+        where user_id = ${user_id} and drink_id = ${drink_id}
      `
  
      const request = new Request(sql_query, (err, rowCount) => {
