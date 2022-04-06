@@ -313,9 +313,24 @@ function set_routes(server, db_connection) {
 
     server.route({
         method: "POST",
-        path: "/updateTab/{tab_id}/{bar_drink_id}",
-        handler: async (request, resp) => {
-            return updateTab(request, db_connection)
+        path: "/tab/add_order",
+        options: {
+            handler: async (request, resp) => {
+                return updateTab(request, db_connection)
+            },
+            description: 'Adds a new drink to a user\'s tab',
+            notes: 'Returns nothing',
+            tags: ['api'], // ADD THIS TAG
+            validate: {
+                payload: Joi.object({
+                    tab_id: Joi.string()
+                        .required()
+                        .description('Id of the user tab'),
+                    bar_drink_id: Joi.string()
+                        .required()
+                        .description('Id of the bar drink'),
+                }).label('Test')
+            }
         }
     });
 
