@@ -31,7 +31,7 @@ const getTabDrinks = async (request, db_connection) => {
         inner join tab_drinks on 
             tabs.tab_id = tab_drinks.tab_id and 
             bar_drinks.bar_drink_id = tab_drinks.bar_drink_id)
-    where tabs.user_id = 2 and bar_drinks.bar_id = 2`
+    where tabs.user_id = ${user_id} and bar_drinks.bar_id = ${bar_id}`
 
     const request = new Request(sql_query, (err, rowCount) => {
       if (err) {
