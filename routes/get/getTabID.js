@@ -14,9 +14,11 @@ const getTabID = async (request, db_connection) => {
     `
 
     const request = new Request(sql_query, (err, rowCount) => {
-      if (err) {
-        resolve(createResponse(-1, null))
-      }
+        if (err) {
+            resolve(createResponse(-1, null))
+        } else if (rowCount != 1) {
+            resolve(createResponse(-1, null))
+        }
     });
 
     request.on('row', columns => {
@@ -39,7 +41,8 @@ const getTabID = async (request, db_connection) => {
       });
     });
 
-    request.on('doneProc', (rowCount, more, returnStatus, rows) => {
+      request.on('doneProc', (rowCount, more, returnStatus, rows) => {
+
         console.log(JSON.stringify(tab_object))
         return resolve(createResponse(0, tab_object));
     });
