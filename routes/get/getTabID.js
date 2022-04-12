@@ -44,6 +44,13 @@ const getTabID = async (request, db_connection) => {
       request.on('doneProc', (rowCount, more, returnStatus, rows) => {
 
         console.log(JSON.stringify(tab_object))
+          
+        if(JSON.stringify(tab_object) === '{}')
+        {
+          console.log('object empty!')
+          return resolve(createResponse(-1, null))
+        }
+          
         return resolve(createResponse(0, tab_object));
     });
 
