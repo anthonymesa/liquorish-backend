@@ -28,11 +28,8 @@ const addPassToBar = async (request, db_connection) => {
  
   // const state = request.form.state;
   
-  const insert = "INSERT INTO [dbo].[bar_pass](bar_id, password)";
-  const values = `${bar_id}, '${password}')`;
-  
+    const insert = `INSERT INTO bar_pass(bar_id, password) values (${bar_id}, '${password}')`;  
 
-//    const update = `UPDATE users SET address_city = '${city}', address_state = '${state}' WHERE id = ${id}`;
   console.log(insert);
   return new Promise((resolve, reject) => {
     //  Create dabase request to count from test table (should be 1)
