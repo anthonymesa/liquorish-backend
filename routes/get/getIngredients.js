@@ -26,6 +26,7 @@ const getIngredients = async (request, db_connection) => {
 
     const request = new Request(sql_query, (err, rowCount) => {
       if (err) {
+          console.log(err)
         resolve(createResponse(-1, null))
       }
     });

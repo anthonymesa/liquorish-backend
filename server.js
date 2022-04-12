@@ -14,6 +14,7 @@ const { exit } = require("process");
  * API files/functions
  */
 const { loginUser } = require('./routes/loginUser')
+const { loginBar } = require('./routes/loginBar')
 const { getIngredients } = require('./routes/get/getIngredients')
 const { getDob } = require('./routes/get/getDob');
 const { getBarsNearUser } = require("./routes/get/getBarsNearUser");
@@ -23,6 +24,15 @@ const { updateUserCityStateForm, updateUserCityState } = require("./routes/updat
 const { getUser } = require("./routes/get/getUser");
 const { getTabDrinks } = require("./routes/get/getTab");
 const { getSavedDrinks } = require("./routes/get/getSavedDrinks");
+const { getBarDrinks } = require("./routes/get/getBarDrinks");
+const { createSavedDrink } = require("./routes/create/createSavedDrink");
+const { updateReadyStatus } = require("./routes/update/updateReadyStatus");
+const { deleteSavedDrink } = require("./routes/delete/deleteSavedDrink");
+const { getSavedBarDrinks } = require("./routes/get/getSavedBarDrinks");
+const { updateTab } = require("./routes/update/updateTab");
+const { getIsSaved } = require("./routes/get/getIsSaved");
+const { addSavedDrink } = require("./routes/update/addSavedDrink");
+const { getTabID } = require("./routes/get/getTabID");
 
 /**
  * Gets Azure DB credentials
@@ -108,11 +118,19 @@ function set_routes(server, db_connection) {
 
   server.route({
     method: 'GET',
-    path: '/login/{username}/{password}',
+    path: '/loginUser/{username}/{password}',
     handler: (request, reply) => {
       return loginUser(request, db_connection)
     }
   });
+
+    server.route({
+        method: 'GET',
+        path: '/loginBar/{username}/{password}',
+        handler: (request, reply) => {
+            return loginBar(request, db_connection)
+        }
+    });
 
   server.route({
     method: 'GET',
@@ -186,6 +204,54 @@ function set_routes(server, db_connection) {
     }
   })
 
+  server.route({
+    method: 'GET',
+    path: '/barDrinks/{bar_id}',
+    handler: (request, reply) => {
+      return getBarDrinks(request, db_connection)
+    }
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/savedBarList/{bar_id}/{user_id}',
+    handler: (request, reply) => {
+      return getSavedBarDrinks(request, db_connection)
+    }
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/getIsSaved/{user_id}/{drink_id}',
+    handler: (request, reply) => {
+      return getIsSaved(request, db_connection)
+    }
+  })
+
+  server.route({
+    method: "GET",
+    path: "/addSavedDrink/{user_id}/{drink_id}",
+    handler: async (request, resp) => {
+        return addSavedDrink(request, db_connection)
+    }
+});
+
+server.route({
+    method: "GET",
+    path: "/deleteSavedDrink/{user_id}/{drink_id}",
+    handler: async (request, resp) => {
+        return deleteSavedDrink(request, db_connection)
+    }
+});
+
+server.route({
+    method: "GET",
+    path: "/getTabID/{user_id}/{bar_id}",
+    handler: async (request, resp) => {
+        return getTabID(request, db_connection)
+    }
+});
+
   /**
    * POST requests
    */
@@ -213,6 +279,40 @@ function set_routes(server, db_connection) {
       return updateUserCityState(request, db_connection)
     }
   });
+
+    server.route({
+        method: "POST",
+        path: "/updateReadyStatus",
+        handler: async (request, resp) => {
+            return updateReadyStatus(request, db_connection)
+        }
+    });
+
+    server.route({
+        method: "POST",
+        path: "/createSavedDrink",
+        handler: async (request, resp) => {
+            return createSavedDrink(request, db_connection)
+        }
+    });
+
+    server.route({
+        method: "POST",
+        path: "/deleteSavedDrink",
+        handler: async (request, resp) => {
+            return deleteSavedDrink(request, db_connection)
+        }
+    });
+
+    server.route({
+        method: "POST",
+        path: "/updateTab/{tab_id}/{bar_drink_id}",
+        handler: async (request, resp) => {
+            return updateTab(request, db_connection)
+        }
+    });
+
+
 
   /**
    * This rout catches all routes that have not been appended above.
