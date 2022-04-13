@@ -28,11 +28,11 @@ const getBarDrinks = async (request, db_connection) => {
         where drink.drink_id in (
               select bar_drinks.drink_id
         from bar_drinks
-        where bar_id = 3
+        where bar_id = ${bar_id}
             )
           ) as drink_data
         on bar_drinks.drink_id = drink_data.drink_id
-    where bar_drinks.bar_id = 3
+    where bar_drinks.bar_id = ${bar_id}
     `
 
     /**
