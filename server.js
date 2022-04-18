@@ -33,6 +33,8 @@ const { updateTab } = require("./routes/update/updateTab");
 const { getIsSaved } = require("./routes/get/getIsSaved");
 const { addSavedDrink } = require("./routes/update/addSavedDrink");
 const { getTabID } = require("./routes/get/getTabID");
+const { deleteBarSetting } = require("./routes/delete/deleteBarSetting");
+const { updateBar } = require("./routes/update/updateBar");
 
 /**
  * Gets Azure DB credentials
@@ -244,6 +246,14 @@ server.route({
     }
 });
 
+    server.route({
+        method: "GET",
+        path: "/deleteBar/{bar_id}",
+        handler: async (request, resp) => {
+            return deleteBar(request, db_connection)
+        }
+    });
+
 server.route({
     method: "GET",
     path: "/getTabID/{user_id}/{bar_id}",
@@ -309,6 +319,14 @@ server.route({
         path: "/updateTab/{tab_id}/{bar_drink_id}",
         handler: async (request, resp) => {
             return updateTab(request, db_connection)
+        }
+    });
+
+    server.route({
+        method: "POST",
+        path: "/updateBar",
+        handler: async (request, resp) => {
+            return updateBar(request, db_connection)
         }
     });
 
