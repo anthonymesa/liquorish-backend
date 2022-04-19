@@ -21,9 +21,7 @@ const updateBar = async (request, db_connection) => {
                     address_city = '${address_city}',
                     address_state = '${address_state}',
                     address_zip = '${address_zip}'
-                    from [dbo].[bar] INNER JOIN [dbo].[owner_pass]
-                    ON bar.owner_id = owner_pass.owner_id
-                    WHERE id = 2 and password = 'admin'`;
+                    WHERE id = '${barID}'`;
   return new Promise((resolve, reject) => {
     //  Create dabase request to count from test table (should be 1)
     const request = new Request(update,
