@@ -18,6 +18,7 @@ const getTabDrinks = async (request, db_connection) => {
 
     const sql_query = `    
     select
+        tab_drinks.order_num,
         drink.drink_id,
         drink.drink_name,
         drink.description,
