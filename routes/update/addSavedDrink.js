@@ -20,10 +20,9 @@ const addSavedDrink = async (request, db_connection) => {
                 if (err) {
                     console.log(err);
                     resolve(createResponse(-1, null));
-                } else if (rowCount != 1) {
-                    resolve(createResponse(-1, null));
                 } else {
-                    resolve(createResponse(0, null));
+                    console.log(rowCount);
+                    resolve(createResponse(0, rowCount == 1));
                 }
             }
         );
