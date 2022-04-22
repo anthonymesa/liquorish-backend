@@ -325,7 +325,7 @@ server.route({
 
     server.route({
         method: "POST",
-        path: "/updateTab/{tab_id}/{bar_drink_id}",
+        path: "/updateTab",
         handler: async (request, resp) => {
             return updateTab(request, db_connection)
         }
