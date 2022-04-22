@@ -17,15 +17,10 @@ const loginBar = async (request, db_connection) => {
   return await new Promise((resolve, reject) => {
 
     const sql_query = `
-    select bar_id 
-        from bar_pass 
-        where bar_id = (
-            select id 
-            from bar 
-            where username = '${username}'
-            ) and 
-            password = '${password}'
-        `
+        select bar_id from bar_pass where bar_id = (
+            select id from bar where username = '${username}'
+        ) and password = '${password}'
+    `
 
     const request = new Request(sql_query, (err, rowCount) => {
       if (err) {
