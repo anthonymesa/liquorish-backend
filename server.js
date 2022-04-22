@@ -37,6 +37,7 @@ const { deleteBar } = require("./routes/delete/deleteBar");
 const { updateBar } = require("./routes/get/update/updateBar");
 const { createUser } = require("./routes/create/createUser");
 const { getBar } = require("./routes/get/getBar")
+const { getBarOrders } = require("./routes/get/getBarOrders")
 /**
  * Gets Azure DB credentials
  */
@@ -268,6 +269,14 @@ server.route({
     path: "/getBar/{bar_id}",
     handler: async (request, resp) => {
         return getBar(request, db_connection)
+    }
+})
+
+server.route({
+    method: "GET",
+    path: "/getOrders/{bar_id}",
+    handler: async (request, resp) => {
+        return getBarOrders(request, db_connection)
     }
 })
 
