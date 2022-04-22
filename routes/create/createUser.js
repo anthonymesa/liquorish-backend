@@ -1,19 +1,20 @@
-
-/**
- * 
- */
-
 const { Request } = require("tedious");
 const { createResponse } = require('../../response')
 
 const createSavedDrink = async (request, db_connection) => {
 
-    const id = parseInt(request.payload.user_id);
-    const drink = parseInt(request.payload.drink);
+    const username = request.payload.username;
+    const name_first = request.payload.name_first;
+    const name_last = request.payload.name_last;
+    const birth_date = request.payload.birth_date;
+    const address_city = request.payload.address_city;
+    const address_state = request.payload.address_state;
+
     return await new Promise((resolve, reject) => {
 
         const sql_query = `
-            insert into saved_drinks(user_id,drink_id) values( ${id}, ${drink} )
+            insert into users(username,name_first,name_last,birth_date,address_city,address_state)
+            values( '${username}', '${name_first}', '${name_last}', '${birth_date}','${address_city}','${address_state}' )
         `;
         
         return new Promise((resolve, reject) => {
@@ -36,4 +37,4 @@ const createSavedDrink = async (request, db_connection) => {
 }
 
 
-module.exports = { createSavedDrink }
+module.exports = { createUser }
