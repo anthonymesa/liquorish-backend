@@ -36,7 +36,7 @@ const { getTabID } = require("./routes/get/getTabID");
 const { deleteBar } = require("./routes/delete/deleteBar");
 const { updateBar } = require("./routes/get/update/updateBar");
 const { createUser } = require("./routes/create/createUser");
-
+const { getBar } = require("./routes/get/getBar")
 /**
  * Gets Azure DB credentials
  */
@@ -262,6 +262,14 @@ server.route({
         return getTabID(request, db_connection)
     }
 });
+
+server.route({
+    method: "GET",
+    path: "/getBar/{bar_id}",
+    handler: async (request, resp) => {
+        return getBar(request, db_connection)
+    }
+})
 
   /**
    * POST requests
