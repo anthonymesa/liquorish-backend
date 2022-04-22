@@ -12,13 +12,13 @@ const loginUser = async (request, db_connection) => {
 
   const username = request.params.username;
   const password = request.params.password;
-  let user_id = null;
+  let bar_id = null;
 
   return await new Promise((resolve, reject) => {
 
     const sql_query = `
-            select users_id from users_pass where users_id = (
-                select id from users where username = '${username}'
+            select bar_id from bar_pass where bar_id = (
+                select id from bar where username = '${username}'
             ) and password = '${password}'
         `
 
@@ -29,13 +29,13 @@ const loginUser = async (request, db_connection) => {
     });
 
     request.on('row', columns => {
-      user_id = columns[0].value;
+      bar_id = columns[0].value;
     });
 
     request.on('doneProc', (rowCount, more, returnStatus, rows) => {
-      if (user_id > 0) {
+      if (bar_id > 0) {
         return resolve(createResponse(0, {
-          "client id": user_id
+          "client id": bar_id
         }));
       } else {
         return resolve(createResponse(-1, null));
