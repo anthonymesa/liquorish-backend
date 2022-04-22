@@ -14,14 +14,14 @@ const updateBar = async (request, db_connection) => {
   const address = request.payload.address_street;
     const address_city = request.payload.address_city;
     const address_state = request.payload.address_state;
-    const address_zip = request.payload.address_zip;
+    const address_zip = parseInt(request.payload.address_zip);
     const owner_pass = request.payload.owner_pass;
     const update = `UPDATE bar SET 
                     address_street = '${address_street}',
                     address_city = '${address_city}',
                     address_state = '${address_state}',
-                    address_zip = '${address_zip}'
-                    WHERE id = '${barID}'`;
+                    address_zip = ${address_zip}
+                    WHERE id = ${barID}`;
   return new Promise((resolve, reject) => {
     //  Create dabase request to count from test table (should be 1)
     const request = new Request(update,
@@ -32,7 +32,7 @@ const updateBar = async (request, db_connection) => {
           } else if (rowCount != 1) {
               resolve(createResponse(-1, null));
           } else {
-              resolve(createResponse(1, null));
+              resolve(createResponse(0, null));
           }
       }
     );

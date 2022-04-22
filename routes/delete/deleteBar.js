@@ -20,7 +20,7 @@ const deleteBar = async (request, db_connection) => {
                 } else if (rowCount != 1) {
                     resolve(createResponse(-1, null));
                 } else {
-                    resolve(createResponse(1, null));
+                    resolve(createResponse(0, null));
                 }
             }
         );

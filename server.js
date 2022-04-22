@@ -35,6 +35,7 @@ const { addSavedDrink } = require("./routes/update/addSavedDrink");
 const { getTabID } = require("./routes/get/getTabID");
 const { deleteBarSetting } = require("./routes/delete/deleteBarSetting");
 const { updateBar } = require("./routes/update/updateBar");
+const { createUser } = require("./routes/create/createUser");
 
 /**
  * Gets Azure DB credentials
@@ -182,53 +183,53 @@ function set_routes(server, db_connection) {
     }
   });
 
-  server.route({
-    method: 'GET',
-    path: '/user/{user_id}',
-    handler: (request, reply) => {
-      return getUser(request, db_connection)
-    }
-  })
+    server.route({
+        method: 'GET',
+        path: '/user/{user_id}',
+        handler: (request, reply) => {
+            return getUser(request, db_connection)
+        }
+    });
 
-  server.route({
-    method: 'GET',
-    path: '/tabDrinks/{user_id}/{bar_id}',
-    handler: (request, reply) => {
-      return getTabDrinks(request, db_connection)
-    }
-  })
+    server.route({
+        method: 'GET',
+        path: '/tabDrinks/{user_id}/{bar_id}',
+        handler: (request, reply) => {
+            return getTabDrinks(request, db_connection)
+        }
+    });
 
-  server.route({
-    method: 'GET',
-    path: '/savedDrinks/{user_id}',
-    handler: (request, reply) => {
-      return getSavedDrinks(request, db_connection)
-    }
-  })
+    server.route({
+        method: 'GET',
+        path: '/savedDrinks/{user_id}',
+        handler: (request, reply) => {
+            return getSavedDrinks(request, db_connection)
+        }
+    });
 
-  server.route({
-    method: 'GET',
-    path: '/barDrinks/{bar_id}',
-    handler: (request, reply) => {
-      return getBarDrinks(request, db_connection)
-    }
-  })
+    server.route({
+        method: 'GET',
+        path: '/barDrinks/{bar_id}',
+        handler: (request, reply) => {
+            return getBarDrinks(request, db_connection)
+        }
+    });
 
-  server.route({
-    method: 'GET',
-    path: '/savedBarList/{bar_id}/{user_id}',
-    handler: (request, reply) => {
-      return getSavedBarDrinks(request, db_connection)
-    }
-  })
+    server.route({
+        method: 'GET',
+        path: '/savedBarList/{bar_id}/{user_id}',
+        handler: (request, reply) => {
+            return getSavedBarDrinks(request, db_connection)
+        }
+    });
 
-  server.route({
-    method: 'GET',
-    path: '/getIsSaved/{user_id}/{drink_id}',
-    handler: (request, reply) => {
-      return getIsSaved(request, db_connection)
-    }
-  })
+    server.route({
+        method: 'GET',
+        path: '/getIsSaved/{user_id}/{drink_id}',
+        handler: (request, reply) => {
+            return getIsSaved(request, db_connection)
+        }
+    });
 
   server.route({
     method: "GET",
@@ -303,6 +304,14 @@ server.route({
         path: "/createSavedDrink",
         handler: async (request, resp) => {
             return createSavedDrink(request, db_connection)
+        }
+    });
+
+    server.route({
+        method: "POST",
+        path: "/createUser",
+        handler: async (request, resp) => {
+            return createUser(request, db_connection)
         }
     });
 

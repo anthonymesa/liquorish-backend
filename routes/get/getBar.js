@@ -37,12 +37,6 @@ const getBar = async (request, db_connection) => {
 
         let json_user_data = {[col_name]: col_value}
         console.log(JSON.stringify(json_user_data))
-
-        
-        /**
-         * This is an admittedly odd way to do it, but it is the proper way to
-         * append a key-value pair to an already created object.
-         */
         Object.assign(user_object, json_user_data)
       });
     });
