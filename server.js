@@ -36,6 +36,7 @@ const { getTabID } = require("./routes/get/getTabID");
 const { deleteBar } = require("./routes/delete/deleteBar");
 const { updateBar } = require("./routes/get/update/updateBar");
 const { createUser } = require("./routes/create/createUser");
+const { createTabForm } = require("./routes/create/createTab");
 
 /**
  * Gets Azure DB credentials
@@ -313,6 +314,22 @@ server.route({
         handler: async (request, resp) => {
             return createUser(request, db_connection)
         }
+    });
+
+    server.route({
+        method: "POST",
+        path: "/createTab",
+        handler: async (request, resp) => {
+            return createTab(request, db_connection)
+        }
+    });
+
+    server.route({
+        method: "GET",
+        path: "/createTabForm",
+        handler: async (request, resp) => {
+            return createTabForm()
+    }
     });
 
     server.route({
