@@ -22,6 +22,8 @@ const updateReadyStatus = async (request, db_connection) => {
                 if (err) {
                     console.log(err);
                     resolve(createResponse(-1, null));
+                } else if (rowCount != 1) {
+                    resolve(createResponse(-1, null));
                 } else {
                     console.log(rowCount);
                     resolve(createResponse(0, null));
