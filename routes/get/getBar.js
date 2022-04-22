@@ -37,13 +37,13 @@ const getBar = async (request, db_connection) => {
 
         let json_user_data = {[col_name]: col_value}
         console.log(JSON.stringify(json_user_data))
-        Object.assign(user_object, json_user_data)
+        Object.assign(bar_object, json_user_data)
       });
     });
 
     request.on('doneProc', (rowCount, more, returnStatus, rows) => {
-      console.log(JSON.stringify(user_object))
-      return resolve(createResponse(0, user_object));
+      console.log(JSON.stringify(bar_object))
+      return resolve(createResponse(0, bar_object));
     });
 
     db_connection.execSql(request);
