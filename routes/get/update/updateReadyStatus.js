@@ -5,7 +5,7 @@
  */
 
 const { Request } = require("tedious");
-const { createResponse } = require('../../response')
+const { createResponse } = require('../../../response')
 
 const updateReadyStatus = async (request, db_connection) => {
     //user_id, curr_pass_hash, new_pass_hash  

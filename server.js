@@ -33,7 +33,7 @@ const { updateTab } = require("./routes/get/update/updateTab");
 const { getIsSaved } = require("./routes/get/getIsSaved");
 const { addSavedDrink } = require("./routes/get/update/addSavedDrink");
 const { getTabID } = require("./routes/get/getTabID");
-const { deleteBarSetting } = require("./routes/delete/deleteBarSetting");
+const { deleteBar } = require("./routes/delete/deleteBar");
 const { updateBar } = require("./routes/get/update/updateBar");
 const { createUser } = require("./routes/create/createUser");
 

@@ -1,6 +1,6 @@
 
 const { Request } = require("tedious");
-const { createResponse } = require('../../response')
+const { createResponse } = require('../../../response')
 
 const addSavedDrink = async (request, db_connection) => {
 

@@ -5,7 +5,7 @@
  */
 
 const { Request } = require("tedious");
-const { createResponse } = require('../../response')
+const { createResponse } = require('../../../response')
 
 const updateBar = async (request, db_connection) => {
 

@@ -1,7 +1,7 @@
 const { Request } = require("tedious");
 const { createResponse } = require('../../response')
 
-const createSavedDrink = async (request, db_connection) => {
+const createUser = async (request, db_connection) => {
 
     const username = request.payload.username;
     const name_first = request.payload.name_first;

@@ -5,7 +5,7 @@
  */
 
 const { Request } = require("tedious");
-const { createResponse } = require('../../response')
+const { createResponse } = require('../../../response')
 
 const updateUserPasswordForm = () => {
   let c = "Content-Type': 'text/html'";
